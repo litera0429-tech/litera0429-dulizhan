@@ -213,7 +213,15 @@ def upload_to_oss(refs, state, dry_run):
             continue  # 已上传且文件没变
         if dry_run:
             continue
-        bucket.put_object_from_file(ref, src, headers={"Content-Type": content_type(ref)})
+        bucket.put_object_from_file(
+            ref,
+            src,
+            headers={
+                "Content-Type": content_type(ref),
+                # 长缓存：浏览器本地缓存，重复访问不再产生 OSS 流量
+                "Cache-Control": "public, max-age=31536000, immutable",
+            },
+        )
         uploaded[ref] = digest
         count += 1
         print("[上传] %s" % ref)
@@ -291,10 +299,49 @@ def git_publish(dry_run):
             print("[git] 尚未配置远端仓库，跳过 push。请先：git remote add origin <仓库地址>")
 
 
+def set_cache_headers():
+    """给 OSS 上所有对象补上长缓存头（只改元数据，不重传内容）。"""
+    try:
+        import oss2
+    except ImportError:
+        print("缺少 oss2，请先：pip3 install oss2")
+        return
+    env_ = env()
+    ak = env_.get("OSS_ACCESS_KEY_ID", "").strip()
+    sk = env_.get("OSS_ACCESS_KEY_SECRET", "").strip()
+    bucket_name = env_.get("OSS_BUCKET", "").strip()
+    endpoint = env_.get("OSS_ENDPOINT", "").strip()
+    if not (ak and sk and bucket_name and endpoint):
+        print("未配置 OSS 密钥（.env）")
+        return
+    auth = oss2.Auth(ak, sk)
+    bucket = oss2.Bucket(auth, endpoint, bucket_name)
+    count = 0
+    for o in oss2.ObjectIterator(bucket, max_keys=1000):
+        bucket.copy_object(
+            bucket_name,
+            o.key,
+            o.key,
+            headers={
+                "x-oss-metadata-directive": "REPLACE",
+                "Cache-Control": "public, max-age=31536000, immutable",
+            },
+        )
+        count += 1
+        if count % 200 == 0:
+            print("[缓存] 已处理 %d 个对象" % count)
+    print("[缓存] 完成，共 %d 个对象已补上长缓存头" % count)
+
+
 def main():
     dry_run = "--dry-run" in sys.argv
     skip_upload = "--skip-upload" in sys.argv
     clean_only = "--clean-only" in sys.argv
+    set_cache = "--cache" in sys.argv
+
+    if set_cache:
+        set_cache_headers()
+        return
 
     works = read_json(os.path.join(CONTENT_DIR, "works.json"))
     site = read_json(os.path.join(CONTENT_DIR, "site.json"))
