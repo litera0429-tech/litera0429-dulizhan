@@ -1414,7 +1414,7 @@ button {
 /* ---------- 首页封面视频 ---------- */
 
 .hero {
-  background: #0c0c0c;
+  background: var(--bg); /* 封面加载前的占位底色：浅色主题白底、深色主题黑底 */
 }
 
 .hero-video {
@@ -1423,6 +1423,7 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: var(--bg); /* 视频数据未就绪时同样显示占位底色 */
   filter: none;
 }
 
