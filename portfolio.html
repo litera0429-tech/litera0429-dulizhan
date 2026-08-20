@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>肘子鱼的奇妙冒险 · 摄影作品</title>
+  <meta name="description" content="肘子鱼的奇妙冒险：东京、北海道、泰国等旅行摄影作品。">
+  <script>
+    (function () {
+      var pref = null;
+      try { pref = localStorage.getItem("zzTheme"); } catch (e) {}
+      var theme;
+      if (pref === "light" || pref === "dark") {
+        theme = pref;
+      } else {
+        var h = new Date().getHours();
+        theme = h >= 6 && h < 17 ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230c0c0c'/%3E%3Ctext x='50' y='70' font-size='44' text-anchor='middle' fill='%23f2f2ef' font-family='serif'%3E肘鱼%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css?v=55">
+</head>
+<body class="subpage" data-group="adventure">
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="index.html">肘子鱼</a>
+    <nav class="site-nav" id="siteNav" aria-label="主导航">
+      <button class="nav-switch" id="themeSwitch" type="button" aria-label="切换深浅色主题" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('zzTheme',n);}catch(e){}})();">SWITCH</button>
+      <a href="index.html">HOME主页</a>
+      <a href="footprint.html">FOOTPRINT足迹</a>
+      <a href="business.html">BUSINESS商业</a>
+      <a href="about.html">ABOUT关于</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="打开菜单" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <p class="page-kicker">ADVENTURE</p>
+      <h1 class="page-title">肘子鱼的奇妙冒险</h1>
+      <p class="page-desc">探索世界的角落，用快门收藏每一段奇妙旅程。</p>
+    </section>
+
+    <nav class="filter-bar" aria-label="作品分类">
+      <div class="filter-inner" id="filterBar"></div>
+    </nav>
+
+    <section class="gallery" id="gallery"></section>
+    <p class="gallery-empty" id="emptyState" hidden>这个分类下暂时还没有作品。</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner footer-cols">
+      <div class="footer-col">
+        <p class="footer-col-title">CONTACT &amp; CHANNELS</p>
+        <p class="footer-line">小红书：<span id="footerXhs">待补充</span></p>
+        <p class="footer-line">电子邮件：<a class="footer-mail" id="footerMail" href="mailto:litera0429@gmail.com">litera0429@gmail.com</a></p>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">COOPERATION</p>
+        <p class="footer-line">商务：zjy1106711466</p>
+        <p class="footer-line">投稿：<a class="footer-mail" href="mailto:3178675298@qq.com">3178675298@qq.com</a></p>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">SECTIONS</p>
+        <p class="footer-line"><a href="index.html">COVER 返回封面</a></p>
+        <p class="footer-line"><a href="footprint.html">FOOTPRINT 浏览足迹</a></p>
+      </div>
+    </div>
+    <p class="footer-copy">© <span id="year">2026</span> 肘子鱼. ALL RIGHTS RESERVED.</p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" id="lbClose" type="button" aria-label="关闭">&times;</button>
+    <div class="lb-stage" id="lbStage">
+      <img class="lb-img" id="lbImg" src="" alt="" draggable="false">
+      <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="上一张">&#8249;</button>
+      <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="下一张">&#8250;</button>
+    </div>
+    <div class="lb-caption">
+      <div class="lb-title" id="lbTitle"></div>
+      <div class="lb-meta" id="lbMeta"></div>
+    </div>
+    <div class="lb-count" id="lbCount"></div>
+  </div>
+
+  <script src="js/main.js?v=20"></script>
+</body>
+</html>

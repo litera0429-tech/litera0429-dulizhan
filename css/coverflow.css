@@ -1,0 +1,178 @@
+/* ---------- Coverflow 封面轮播（样式对应原 React 组件，配色跟随站点主题） ---------- */
+
+.cf-section {
+  position: relative;
+  z-index: 2;
+  background: var(--bg);
+  /* 上：与封面拉开距离；下：与页脚的间距 */
+  padding: clamp(210px, 22vw, 360px) 0 clamp(90px, 10vw, 150px);
+  transition: background-color 0.5s ease;
+}
+
+.cf-head {
+  max-width: 1280px;
+  margin: 0 auto 96px;
+  padding: 0 clamp(24px, 4vw, 52px);
+  text-align: center;
+}
+
+/* 进入视口时的柔滑显现：避免滑到轮播时很生硬 */
+.cf-section .cf-head,
+.cf-section .cf-stage {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cf-section.cf-in .cf-head,
+.cf-section.cf-in .cf-stage {
+  opacity: 1;
+  transform: none;
+}
+
+.cf-section.cf-in .cf-stage {
+  transition-delay: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-section .cf-head,
+  .cf-section .cf-stage {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.cf-head-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(16px, 2vw, 24px);
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+.cf-head-sub {
+  display: inline-block;
+  margin-top: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+  transition: color 0.25s ease;
+}
+
+.cf-head-sub:hover {
+  color: var(--text);
+}
+
+.cf-stage {
+  position: relative;
+  --cf-card: clamp(148px, 22vw, 260px);
+}
+
+/* 对应原组件 frame：overflow-hidden + py-10，拖拽/键盘交互区 */
+.cf-frame {
+  cursor: grab;
+  overflow: hidden;
+  padding: 40px 0;
+  outline: none;
+  touch-action: pan-y;
+}
+
+.cf-frame:focus-visible {
+  box-shadow: 0 0 0 2px var(--nav-line);
+}
+
+.cf-frame.grabbing {
+  cursor: grabbing;
+}
+
+.cf-track {
+  position: relative;
+  height: var(--cf-card);
+  transform-style: preserve-3d;
+  user-select: none;
+}
+
+/* 对应原组件卡片：aspect-square + rounded-2xl + bg-muted + shadow-xl */
+.cf-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--cf-card);
+  aspect-ratio: 1;
+  cursor: pointer;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--bg-elev);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  will-change: transform;
+}
+
+.cf-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 说明区：对应原组件 caption（标题 / 副标题 / 元信息 dl） */
+.cf-caption {
+  margin: 8px auto 0;
+  max-width: 640px;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.cf-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.cf-subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.cf-meta {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 230px;
+  font-size: 12px;
+}
+
+.cf-meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.cf-meta dt {
+  color: var(--dim);
+}
+
+.cf-meta dd {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* 对应原组件 animate-in fade-in（300ms 淡入） */
+.cf-fade {
+  animation: cfFade 0.3s ease both;
+}
+
+@keyframes cfFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

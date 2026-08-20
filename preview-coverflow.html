@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coverflow 预览</title>
+  <script>
+    (function () {
+      var pref = null;
+      try { pref = localStorage.getItem("zzTheme"); } catch (e) {}
+      var theme;
+      if (pref === "light" || pref === "dark") {
+        theme = pref;
+      } else {
+        var h = new Date().getHours();
+        theme = h >= 6 && h < 17 ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css?v=31">
+  <link rel="stylesheet" href="css/coverflow.css?v=3">
+  <style>
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <section class="cf-section" id="coverflow" aria-label="封面轮播">
+    <div class="cf-stage">
+      <div class="cf-frame" id="cfFrame" tabindex="0" role="region" aria-roledescription="carousel" aria-label="封面轮播">
+        <div class="cf-track" id="cfTrack"></div>
+      </div>
+    </div>
+    <div class="cf-caption" id="cfCaption"></div>
+  </section>
+  <script src="js/coverflow.js?v=3"></script>
+</body>
+</html>

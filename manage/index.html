@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>肘子鱼 · 管理后台</title>
+  <script>
+    (function () {
+      var pref = null;
+      try { pref = localStorage.getItem("zzTheme"); } catch (e) {}
+      var theme;
+      if (pref === "light" || pref === "dark") {
+        theme = pref;
+      } else {
+        var h = new Date().getHours();
+        theme = h >= 6 && h < 17 ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #0c0c0c;
+      --bg-soft: #141414;
+      --bg-elev: #1b1b1b;
+      --text: #f2f2ef;
+      --dim: #a5a5a1;
+      --faint: #6e6e6a;
+      --line: rgba(255, 255, 255, 0.1);
+      --danger: #d98c8c;
+      color-scheme: dark;
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --bg-soft: #fafafa;
+      --bg-elev: #f5f5f3;
+      --text: #191917;
+      --dim: #575750;
+      --faint: #8f8f87;
+      --line: rgba(20, 20, 18, 0.12);
+      --danger: #b35555;
+      color-scheme: light;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+        "Segoe UI", Roboto, "Helvetica Neue", "Microsoft YaHei", sans-serif;
+      line-height: 1.7;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      padding-bottom: 90px;
+    }
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px clamp(18px, 4vw, 42px);
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+      transition: background-color 0.5s ease, border-color 0.5s ease;
+    }
+    .top h1 { font-size: 16px; font-weight: 500; letter-spacing: 0.08em; }
+    .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    #status { font-size: 12px; color: var(--faint); }
+    #status.err { color: var(--danger); }
+    .btn {
+      display: inline-block;
+      padding: 7px 15px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s ease, opacity 0.2s ease;
+      font-family: inherit;
+    }
+    .btn:hover { border-color: var(--dim); }
+    .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .btn.primary:hover { opacity: 0.85; }
+    .btn.danger { color: var(--danger); border-color: var(--line); }
+    .btn.danger:hover { border-color: var(--danger); }
+    .btn.small { padding: 4px 12px; font-size: 12px; }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      max-width: 1060px;
+      margin: 22px auto 0;
+      padding: 0 clamp(18px, 4vw, 42px);
+      border-bottom: 1px solid var(--line);
+    }
+    .tab {
+      padding: 10px 20px 12px;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .tab:hover { color: var(--dim); }
+    .tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+    main { max-width: 1060px; margin: 0 auto; padding: 26px clamp(18px, 4vw, 42px) 0; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 22px 24px 26px;
+      margin-bottom: 22px;
+      transition: background-color 0.5s ease, border-color 0.5s ease;
+    }
+    .card h2 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      color: var(--dim);
+      margin-bottom: 16px;
+    }
+    details.card summary {
+      cursor: pointer;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      color: var(--dim);
+      outline: none;
+    }
+    details.card[open] summary { margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, background-color 0.5s ease;
+    }
+    input:focus, textarea:focus { border-color: var(--dim); }
+    textarea { min-height: 78px; resize: vertical; }
+    .img-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .img-row img {
+      width: 150px;
+      height: 100px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--bg);
+    }
+    .img-row .hint { font-size: 11px; color: var(--faint); }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .bar .count { font-size: 12px; color: var(--faint); }
+
+    .cat-menu {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .cat-menu-btn {
+      padding: 7px 14px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .cat-menu-btn:hover { color: var(--text); border-color: var(--dim); }
+    .cat-menu-btn.active {
+      color: var(--text);
+      border-color: var(--text);
+      background: var(--bg-elev);
+    }
+
+    .work {
+      display: grid;
+      grid-template-columns: 128px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+    @media (max-width: 620px) { .work { grid-template-columns: 1fr; } }
+    .w-thumb {
+      width: 128px;
+      height: 92px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--bg);
+      display: block;
+    }
+    .w-img .btn { margin-top: 7px; }
+    .w-fields { display: flex; flex-direction: column; gap: 8px; }
+    .w-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .w-row input { flex: 1; min-width: 130px; }
+    .w-row input.w-cat { flex: 0 1 150px; }
+    .w-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .pos-label { font-size: 12px; color: var(--faint); letter-spacing: 0.06em; }
+    .pos-input {
+      width: 66px;
+      padding: 6px 8px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-family: inherit;
+      outline: none;
+    }
+    .pos-input:focus { border-color: var(--dim); }
+    .xlist { display: flex; gap: 8px; flex-wrap: wrap; }
+    .xitem { position: relative; }
+    .xitem img {
+      width: 64px;
+      height: 48px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      display: block;
+    }
+    .xitem button {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--dim);
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .xitem button:hover { color: var(--text); }
+    .xitem.dragging { opacity: 0.35; }
+    .xitem.drop-target { outline: 1px dashed var(--dim); }
+    .note {
+      font-size: 12px;
+      color: var(--faint);
+      margin-bottom: 12px;
+    }
+    .more-head {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+    .more-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .cf-meta-editor { margin-top: 6px; }
+    .cf-meta-head {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+      margin-bottom: 6px;
+    }
+    .cf-meta-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .cf-meta-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .cf-meta-row input { flex: 1; min-width: 100px; }
+    .cf-meta-row .btn { flex: 0 0 auto; }
+
+    .upload-progress {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      width: min(560px, calc(100vw - 40px));
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 16px 14px;
+      z-index: 100;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+    }
+    .up-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--dim);
+      margin-bottom: 9px;
+    }
+    .up-count { color: var(--faint); white-space: nowrap; }
+    .up-track {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .up-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--text);
+      transition: width 0.18s ease;
+    }
+    .up-fill.busy {
+      width: 100%;
+      background-image: linear-gradient(90deg, var(--dim), var(--text), var(--dim));
+      background-size: 200% 100%;
+      animation: up-slide 1s linear infinite;
+    }
+    @keyframes up-slide {
+      from { background-position: 0% 0; }
+      to { background-position: -200% 0; }
+    }
+    /* ---------- 高级感动画 ---------- */
+    .theme-switch { font-size: 10px; letter-spacing: 0.18em; padding: 5px 11px; }
+    .top { animation: mg-fade-down 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .tabs { animation: mg-rise 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
+    main { animation: mg-rise 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both; }
+    .tab-panel.active { animation: mg-panel 0.42s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .card { animation: mg-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes mg-fade-down { from { opacity: 0; transform: translateY(-10px); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes mg-rise { from { opacity: 0; transform: translateY(14px); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes mg-panel { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+    #homeList.enter .work, #bizList.enter .work { animation: mg-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    #homeList.enter .work:nth-child(2), #bizList.enter .work:nth-child(2) { animation-delay: 0.06s; }
+    #homeList.enter .work:nth-child(3), #bizList.enter .work:nth-child(3) { animation-delay: 0.12s; }
+    #homeList.enter .work:nth-child(4), #bizList.enter .work:nth-child(4) { animation-delay: 0.18s; }
+    #homeList.enter .work:nth-child(5), #bizList.enter .work:nth-child(5) { animation-delay: 0.24s; }
+    #homeList.enter .work:nth-child(6), #bizList.enter .work:nth-child(6) { animation-delay: 0.3s; }
+    #homeList.enter .work:nth-child(n + 7), #bizList.enter .work:nth-child(n + 7) { animation-delay: 0.36s; }
+    .work { transition: background-color 0.35s ease, border-color 0.35s ease; }
+    .work:hover { background: var(--bg-elev); border-top-color: var(--dim); }
+    .w-thumb { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    .work:hover .w-thumb { transform: scale(1.03); }
+    .btn.primary, .top .btn { transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.2s ease, opacity 0.2s ease; }
+    .btn.primary:hover, .top .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16); }
+    .btn.primary:active, .top .btn:active { transform: translateY(0) scale(0.97); }
+    .tab { transition: color 0.25s ease, border-color 0.25s ease; }
+    #status { transition: opacity 0.3s ease; }
+    #status.pop { animation: mg-status 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes mg-status { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <h1>肘子鱼 · 管理后台</h1>
+    <div class="top-actions">
+      <span id="status">加载中…</span>
+      <button class="btn theme-switch" id="themeSwitch" type="button" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('zzTheme',n);}catch(e){}})();">SWITCH</button>
+      <a class="btn" href="../" target="_blank">打开网站</a>
+      <button class="btn" id="reloadBtn" type="button">放弃修改</button>
+      <button class="btn primary" id="saveBtn" type="button">保存</button>
+      <button class="btn primary" id="publishBtn" type="button">发布到线上</button>
+      <button class="btn" id="logoutBtn" type="button">退出登录</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" id="tabHomeBtn" type="button">首页管理</button>
+    <button class="tab" id="tabBizBtn" type="button">商业页管理</button>
+    <button class="tab" id="tabCfBtn" type="button">封面轮播</button>
+    <button class="tab" id="tabHomeCmpBtn" type="button">首页组件</button>
+  </nav>
+
+  <main>
+   <section class="tab-panel active" id="panelHome">
+     <div class="card">
+       <h2>足迹页画廊（冒险作品 · Footprint）</h2>
+        <p class="note">这些作品现在展示在「Footprint足迹」页面（footprint.html），点击轮播卡片或导航 FOOTPRINT足迹 进入。新添加的照片会排在列表最上方；每个系列内的组图可拖动调换顺序。</p>
+        <div class="bar">
+          <button class="btn small" id="addHomeBtn" type="button">添加照片</button>
+          <input type="file" id="addHomeFiles" accept="image/*" multiple hidden>
+          <span class="count" id="homeCount"></span>
+        </div>
+        <div id="homeList"></div>
+      </div>
+
+      <details class="card">
+        <summary>其他设置（关于页 · 联系方式）</summary>
+        <div class="field">
+          <label for="footerXhs">页脚 · 小红书账号</label>
+          <input type="text" id="footerXhs" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="contactEmail">联系邮箱</label>
+          <input type="email" id="contactEmail" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="aboutPhilosophy">关于页 · 摄影理念</label>
+          <textarea id="aboutPhilosophy"></textarea>
+        </div>
+        <div class="field">
+          <label for="aboutExperience">关于页 · 个人经历（可用换行分段）</label>
+          <textarea id="aboutExperience"></textarea>
+        </div>
+        <div class="field">
+          <label>关于页照片</label>
+          <div class="img-row">
+            <img id="aboutImagePreview" alt="关于页照片预览">
+            <div>
+              <button class="btn small" id="aboutImageBtn" type="button">更换图片</button>
+              <input type="file" id="aboutImageInput" accept="image/*" hidden>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="tab-panel" id="panelBiz">
+      <div class="card">
+        <h2>商业页作品</h2>
+        <p class="note">不同分类分开管理：点上方分类菜单切换，每个分类的「添加照片」只归入当前分类，不会混在一起；新添加的照片排在列表最上方；分类可自由新增（如 photo / Create / video）。超过 2MB 的图片会自动压缩到长边 2400px（保持原比例），小于 2MB 原样保存。</p>
+        <div class="bar">
+          <button class="btn small" id="addCatBtn" type="button">新增分类</button>
+          <span class="count" id="bizCount"></span>
+        </div>
+        <nav class="cat-menu" id="bizCatMenu" aria-label="商业页分类菜单"></nav>
+        <div id="bizList"></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panelCf">
+      <div class="card">
+        <h2>封面轮播（首页 · 封面与画廊之间）</h2>
+        <p class="note">图片可以上传，也可以直接粘贴图片链接（http 链接或 images/ 相对路径）。标题、副标题、说明信息可自由修改，顺序用上移/下移调整。</p>
+        <div class="bar">
+          <button class="btn small" id="addCfBtn" type="button">添加卡片</button>
+          <span class="count" id="cfCount"></span>
+        </div>
+        <div id="cfList"></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="panelHomeCmp">
+      <div class="card">
+        <h2>首页 · 滚动叙事（scroll01）</h2>
+        <p class="note">首页「IMMERSIVE 滚动叙事」板块的 5 组内容：图片、标题、描述均可修改，保存后同步到首页。</p>
+        <div id="scroll01List"></div>
+      </div>
+      <div class="card">
+        <h2>首页 · 摄影理念（hero07）</h2>
+        <p class="note">配图与文字修改后点「保存」即同步到首页。</p>
+        <div id="hero07Editor"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="upload-progress" id="uploadProgress" hidden>
+    <div class="up-info">
+      <span id="upText"></span>
+      <span class="up-count" id="upCount"></span>
+    </div>
+    <div class="up-track">
+      <div class="up-fill" id="upFill"></div>
+    </div>
+  </div>
+
+  <datalist id="catOptions"></datalist>
+
+  <script>
+    "use strict";
+
+    var SITE = {};
+    var WORKS = [];
+    var CAROUSEL = [];
+    var dirty = false;
+    var pendingUploads = 0;
+    var uploadBatchActive = 0;
+    var autoSavePending = false;
+    var bizCategories = [];
+    var bizCat = ""; /* 商业页当前选中的分类 */
+
+    function el(id) { return document.getElementById(id); }
+    function setStatus(msg, isErr) {
+      var s = el("status");
+      s.textContent = msg;
+      s.classList.toggle("err", !!isErr);
+      s.classList.remove("pop");
+      void s.offsetWidth;
+      s.classList.add("pop");
+    }
+
+    /* 管理页在 /manage/ 下，图片路径需相对网站根目录解析 */
+    function assetUrl(p) {
+      p = p || "";
+      if (/^(https?:)?\/\//.test(p) || p.charAt(0) === "/") return p;
+      return "../" + p;
+    }
+
+    function setUploadProgress(text, pct, busy) {
+      var bar = el("uploadProgress");
+      if (!bar) return;
+      bar.hidden = false;
+      el("upText").textContent = text;
+      var fill = el("upFill");
+      fill.classList.toggle("busy", !!busy);
+      fill.style.width = (busy ? 100 : Math.max(0, Math.min(100, pct || 0))) + "%";
+    }
+
+    function hideUploadProgress() {
+      var bar = el("uploadProgress");
+      if (!bar) return;
+      bar.hidden = true;
+      var fill = el("upFill");
+      fill.classList.remove("busy");
+      fill.style.width = "0%";
+    }
+
+    function uploadFile(file, cb) {
+      pendingUploads += 1;
+      var fd = new FormData();
+      fd.append("file", file);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload");
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable && e.total > 0) {
+          var pct = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress("上传中 " + file.name + " " + pct + "%", pct, false);
+        }
+      };
+      xhr.upload.onload = function () {
+        setUploadProgress("正在压缩 " + file.name + " …", 100, true);
+      };
+      xhr.onload = function () {
+        pendingUploads -= 1;
+        if (xhr.status === 401) {
+          location.replace("/manage/login.html");
+          cb("未登录或登录已过期", null, false);
+          if (pendingUploads === 0 && uploadBatchActive === 0) hideUploadProgress();
+          return;
+        }
+        var d = null;
+        try { d = JSON.parse(xhr.responseText); } catch (e2) {}
+        if (xhr.status === 200 && d && d.ok) {
+          cb(null, d.path, !!d.compressed);
+        } else {
+          cb((d && d.error) || "上传失败（HTTP " + xhr.status + "）", null, false);
+        }
+        if (pendingUploads === 0 && uploadBatchActive === 0) hideUploadProgress();
+        maybeAutoSave();
+      };
+      xhr.onerror = function () {
+        pendingUploads -= 1;
+        cb("无法连接服务器", null, false);
+        if (pendingUploads === 0 && uploadBatchActive === 0) hideUploadProgress();
+        maybeAutoSave();
+      };
+      xhr.send(fd);
+    }
+
+    function uploadFiles(files, cb) {
+      var results = [];
+      var errors = [];
+      var total = files.length;
+      if (!total) { cb(results, errors); return; }
+      uploadBatchActive += 1;
+      var index = 0;
+      function next() {
+        if (index >= total) {
+          uploadBatchActive -= 1;
+          if (uploadBatchActive === 0 && pendingUploads === 0) hideUploadProgress();
+          cb(results, errors);
+          return;
+        }
+        var f = files[index];
+        setUploadProgress("正在准备第 " + (index + 1) + " / " + total + " 张", (index / total) * 100, false);
+        uploadFile(f, function (err, path) {
+          index += 1;
+          if (err) {
+            errors.push((f.name || "图片") + "：" + err);
+          } else {
+            results.push(path);
+          }
+          setUploadProgress("已完成 " + index + " / " + total + " 张", (index / total) * 100, false);
+          next();
+        });
+      }
+      next();
+    }
+
+    /* 上传/结构调整完成后自动保存，等所有图片传完再写后端 */
+    function scheduleAutoSave() {
+      autoSavePending = true;
+      maybeAutoSave();
+    }
+
+    function maybeAutoSave() {
+      if (autoSavePending && pendingUploads === 0) {
+        autoSavePending = false;
+        saveAll(true);
+      }
+    }
+
+    /* ---------- 加载 ---------- */
+    function load() {
+      setStatus("加载中…");
+      fetch("/api/data")
+        .then(function (r) {
+          if (r.status === 401) {
+            location.replace("/manage/login.html");
+            throw new Error("__auth__");
+          }
+          return r.json();
+        })
+        .then(function (d) {
+          SITE = d.site || {};
+          WORKS = Array.isArray(d.works) ? d.works : [];
+          CAROUSEL = Array.isArray(SITE.carousel) ? SITE.carousel : [];
+          SITE.home = SITE.home || {};
+          SITE.home.scroll01 = Array.isArray(SITE.home.scroll01) ? SITE.home.scroll01 : [];
+          SITE.home.hero07 = SITE.home.hero07 || {};
+          if (!Array.isArray(SITE.businessCategories) || !SITE.businessCategories.length) {
+            SITE.businessCategories = ["photo", "Create", "video"];
+          }
+          bizCategories = SITE.businessCategories.slice();
+          renderAll();
+          dirty = false;
+          setStatus("已加载，修改后点“保存”");
+        })
+        .catch(function (e) { if (e && e.message === "__auth__") return; setStatus("加载失败：请确认本地服务器已启动", true); });
+    }
+
+    function renderAll() {
+      renderCatOptions();
+      renderSite();
+      renderWorks();
+      renderCarousel();
+      renderHomeCmp();
+    }
+
+    function renderCatOptions() {
+      var dl = el("catOptions");
+      if (dl) {
+        dl.innerHTML = "";
+        bizCategories.forEach(function (c) {
+          var opt = document.createElement("option");
+          opt.value = c;
+          dl.appendChild(opt);
+        });
+      }
+    }
+
+    /* ---------- 站点设置 ---------- */
+    function renderSite() {
+      el("footerXhs").value = SITE.footerXhs || "";
+      el("contactEmail").value = SITE.contactEmail || "";
+      el("aboutPhilosophy").value = SITE.aboutPhilosophy || "";
+      el("aboutExperience").value = SITE.aboutExperience || "";
+      el("aboutImagePreview").src = assetUrl(SITE.aboutImage);
+    }
+
+    function bindText(id, key) {
+      el(id).addEventListener("input", function () {
+        SITE[key] = el(id).value;
+        dirty = true;
+      });
+    }
+
+    function bindImageSlot(btnId, inputId, previewId, key) {
+      el(btnId).addEventListener("click", function () { el(inputId).click(); });
+      el(inputId).addEventListener("change", function () {
+        var f = this.files[0];
+        if (!f) return;
+        uploadFile(f, function (err, path) {
+          if (err) { setStatus("上传失败：" + err, true); return; }
+          SITE[key] = path;
+          el(previewId).src = assetUrl(path);
+          dirty = true;
+          scheduleAutoSave();
+        });
+        this.value = "";
+      });
+    }
+
+    /* ---------- 作品 ---------- */
+    function bizCategoriesAll() {
+      /* 已保存的分类 + 作品里实际用到的分类，都进菜单 */
+      var list = bizCategories.slice();
+      WORKS.forEach(function (w) {
+        if (w.group !== "business") return;
+        var c = w.category || "";
+        if (list.indexOf(c) === -1) list.push(c);
+      });
+      return list;
+    }
+
+    function renderBizCatMenu(cats) {
+      var menu = el("bizCatMenu");
+      if (!menu) return;
+      menu.innerHTML = "";
+      cats.forEach(function (c) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cat-menu-btn" + (c === bizCat ? " active" : "");
+        btn.textContent = c || "未分类";
+        btn.addEventListener("click", function () {
+          if (c === bizCat) return;
+          bizCat = c;
+          renderWorks();
+          setStatus("已切换到分类「" + (c || "未分类") + "」");
+        });
+        menu.appendChild(btn);
+      });
+    }
+
+    function renderWorks() {
+      var home = el("homeList");
+      var biz = el("bizList");
+      home.innerHTML = "";
+      biz.innerHTML = "";
+      if (!renderWorks.animated) {
+        renderWorks.animated = true;
+        home.classList.add("enter");
+        biz.classList.add("enter");
+        setTimeout(function () {
+          home.classList.remove("enter");
+          biz.classList.remove("enter");
+        }, 900);
+      }
+
+      /* 商业页：按分类分菜单，每个分类有独立的“添加照片” */
+      var cats = bizCategoriesAll();
+      if (cats.indexOf(bizCat) === -1) bizCat = cats.length ? cats[0] : "";
+      renderBizCatMenu(cats);
+
+      var addBar = document.createElement("div");
+      addBar.className = "bar";
+      var addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "btn small";
+      addBtn.textContent = "添加照片到「" + (bizCat || "未分类") + "」";
+      var addInput = document.createElement("input");
+      addInput.type = "file";
+      addInput.accept = "image/*";
+      addInput.multiple = true;
+      addInput.hidden = true;
+      var addCount = document.createElement("span");
+      addCount.className = "count";
+      addBtn.addEventListener("click", function () { addInput.click(); });
+      addInput.addEventListener("change", function () {
+        var files = Array.prototype.slice.call(this.files);
+        this.value = "";
+        if (!files.length) return;
+        uploadFiles(files, function (paths, errors) {
+          if (!paths.length) {
+            setStatus("上传失败：" + (errors.join("；") || "未知错误"), true);
+            return;
+          }
+          var cat = bizCat;
+          var items = paths.map(function (path, i) {
+            var title = (files[i].name || "新作品").replace(/\.[^.]+$/, "");
+            return {
+              title: title,
+              group: "business",
+              category: cat,
+              image: path,
+              images: [path],
+              description: ""
+            };
+          });
+          WORKS.unshift.apply(WORKS, items);
+          dirty = true;
+          renderWorks();
+          scheduleAutoSave();
+          setStatus(errors.length ? "已添加到「" + (cat || "未分类") + "」" + paths.length + " 张（" + errors.length + " 张失败），已自动保存" : "已添加 " + paths.length + " 张到「" + (cat || "未分类") + "」，已自动保存");
+        });
+      });
+      addBar.appendChild(addBtn);
+      addBar.appendChild(addInput);
+      addBar.appendChild(addCount);
+      biz.appendChild(addBar);
+
+      var bizVisible = 0;
+      WORKS.forEach(function (w, idx) {
+        if (w.group === "business") {
+          if ((w.category || "") === bizCat) {
+            biz.appendChild(makeWorkCard(w, idx, true));
+            bizVisible += 1;
+          }
+          return;
+        }
+        home.appendChild(makeWorkCard(w, idx, w.group === "adventure"));
+      });
+      addCount.textContent = bizVisible + " 个";
+      el("homeCount").textContent = home.children.length + " 个";
+      el("bizCount").textContent = bizVisible + " 个";
+    }
+
+    function groupPos(idx) {
+      var w = WORKS[idx];
+      if (!w) return null;
+      /* 商业页按「分类」内移动，足迹按整组移动，避免跨分类换位 */
+      var key = w.group === "business" ? "business:" + (w.category || "") : w.group;
+      var idxs = [];
+      WORKS.forEach(function (x, i) {
+        var k = x.group === "business" ? "business:" + (x.category || "") : x.group;
+        if (k === key) idxs.push(i);
+      });
+      var pos = idxs.indexOf(idx);
+      if (pos < 0) return null;
+      return { pos: pos, len: idxs.length };
+    }
+
+    /* 在同组（商业 / 足迹）内把作品移动到指定位置，避免跨组交换 */
+    function moveWorkTo(idx, toPos) {
+      var gp = groupPos(idx);
+      if (!gp || gp.len < 2) return false;
+      var w = WORKS[idx];
+      var key = w.group === "business" ? "business:" + (w.category || "") : w.group;
+      toPos = Math.max(0, Math.min(gp.len - 1, toPos));
+      if (toPos === gp.pos) return false;
+      var idxs = [];
+      WORKS.forEach(function (x, i) {
+        var k = x.group === "business" ? "business:" + (x.category || "") : x.group;
+        if (k === key) idxs.push(i);
+      });
+      var moved = WORKS.splice(idxs[gp.pos], 1)[0];
+      var idxs2 = [];
+      WORKS.forEach(function (x, i) {
+        var k = x.group === "business" ? "business:" + (x.category || "") : x.group;
+        if (k === key) idxs2.push(i);
+      });
+      var insertAt = toPos >= idxs2.length
+        ? (idxs2.length ? idxs2[idxs2.length - 1] + 1 : 0)
+        : idxs2[toPos];
+      WORKS.splice(insertAt, 0, moved);
+      return true;
+    }
+
+    function makeXList(arr, onMutate) {
+      var xlist = document.createElement("div");
+      xlist.className = "xlist";
+      var dragFrom = null;
+      arr.forEach(function (src, j) {
+        var wrap = document.createElement("div");
+        wrap.className = "xitem";
+        wrap.draggable = true;
+        var img = document.createElement("img");
+        img.src = assetUrl(src);
+        img.alt = "图片";
+        var x = document.createElement("button");
+        x.type = "button";
+        x.textContent = "×";
+        x.setAttribute("aria-label", "移除这张图");
+        x.addEventListener("click", function () {
+          arr.splice(j, 1);
+          onMutate("remove", src);
+        });
+        wrap.appendChild(img);
+        wrap.appendChild(x);
+        xlist.appendChild(wrap);
+      });
+      xlist.addEventListener("dragstart", function (e) {
+        var item = e.target.closest(".xitem");
+        if (!item) return;
+        dragFrom = Array.prototype.indexOf.call(xlist.children, item);
+        item.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      xlist.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        var item = e.target.closest(".xitem");
+        if (!item || dragFrom == null) return;
+        var over = Array.prototype.indexOf.call(xlist.children, item);
+        if (over !== dragFrom) item.classList.add("drop-target");
+      });
+      xlist.addEventListener("dragleave", function (e) {
+        var item = e.target.closest(".xitem");
+        if (item) item.classList.remove("drop-target");
+      });
+      xlist.addEventListener("drop", function (e) {
+        e.preventDefault();
+        var item = e.target.closest(".xitem");
+        if (item && dragFrom != null) {
+          var over = Array.prototype.indexOf.call(xlist.children, item);
+          if (over !== dragFrom && over !== -1) {
+            var moved = arr.splice(dragFrom, 1)[0];
+            if (dragFrom < over) over -= 1;
+            arr.splice(over, 0, moved);
+            onMutate("reorder");
+            return;
+          }
+        }
+        xlist.querySelectorAll(".dragging, .drop-target").forEach(function (n) {
+          n.classList.remove("dragging", "drop-target");
+        });
+        dragFrom = null;
+      });
+      xlist.addEventListener("dragend", function () {
+        xlist.querySelectorAll(".dragging, .drop-target").forEach(function (n) {
+          n.classList.remove("dragging", "drop-target");
+        });
+        dragFrom = null;
+      });
+      return xlist;
+    }
+
+    function makeWorkCard(w, idx, withGroupImgs) {
+      var card = document.createElement("div");
+      card.className = "work";
+
+      var left = document.createElement("div");
+      left.className = "w-img";
+      var thumb = document.createElement("img");
+      thumb.className = "w-thumb";
+      thumb.src = assetUrl(w.image);
+      thumb.alt = w.title || "作品";
+      var replaceBtn = document.createElement("button");
+      replaceBtn.type = "button";
+      replaceBtn.className = "btn small";
+      replaceBtn.textContent = "更换主图";
+      var fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.hidden = true;
+      replaceBtn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var f = this.files[0];
+        if (!f) return;
+        uploadFile(f, function (err, path) {
+          if (err) { setStatus("上传失败：" + err, true); return; }
+          WORKS[idx].image = path;
+          if (Array.isArray(WORKS[idx].images) && WORKS[idx].images.length) {
+            WORKS[idx].images[0] = path;
+          } else {
+            WORKS[idx].images = [path];
+          }
+          dirty = true;
+          renderWorks();
+          scheduleAutoSave();
+        });
+        this.value = "";
+      });
+      left.appendChild(thumb);
+      left.appendChild(replaceBtn);
+      left.appendChild(fileInput);
+
+      var fields = document.createElement("div");
+      fields.className = "w-fields";
+
+      var row = document.createElement("div");
+      row.className = "w-row";
+      var titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.placeholder = "作品名称";
+      titleInput.value = w.title || "";
+      titleInput.addEventListener("input", function () {
+        WORKS[idx].title = titleInput.value;
+        dirty = true;
+      });
+      var catInput = document.createElement("input");
+      catInput.type = "text";
+      catInput.placeholder = "分类";
+      if (w.group === "business") catInput.setAttribute("list", "catOptions");
+      catInput.className = "w-cat";
+      catInput.value = w.category || "";
+      catInput.addEventListener("input", function () {
+        WORKS[idx].category = catInput.value;
+        dirty = true;
+      });
+      row.appendChild(titleInput);
+      row.appendChild(catInput);
+      fields.appendChild(row);
+
+      var descInput = document.createElement("textarea");
+      descInput.placeholder = "作品描述（可选）";
+      descInput.value = w.description || "";
+      descInput.addEventListener("input", function () {
+        WORKS[idx].description = descInput.value;
+        dirty = true;
+      });
+      fields.appendChild(descInput);
+
+      if (withGroupImgs) {
+        var imgs = Array.isArray(w.images) ? w.images : [];
+        if (imgs.length) {
+          var xlist = document.createElement("div");
+          xlist.className = "xlist";
+          var dragFrom = null;
+          imgs.forEach(function (src, j) {
+            var wrap = document.createElement("div");
+            wrap.className = "xitem";
+            wrap.draggable = true;
+            var img = document.createElement("img");
+            img.src = assetUrl(src);
+            img.alt = "组图";
+            var x = document.createElement("button");
+            x.type = "button";
+            x.textContent = "×";
+            x.setAttribute("aria-label", "移除这张图");
+            x.addEventListener("click", function () {
+              WORKS[idx].images.splice(j, 1);
+              if (WORKS[idx].image === src) {
+                WORKS[idx].image = WORKS[idx].images.length ? WORKS[idx].images[0] : "";
+              }
+              dirty = true;
+              renderWorks();
+              setStatus("已移除一张图，记得点“保存”");
+            });
+            wrap.appendChild(img);
+            wrap.appendChild(x);
+            xlist.appendChild(wrap);
+          });
+          xlist.addEventListener("dragstart", function (e) {
+            var item = e.target.closest(".xitem");
+            if (!item) return;
+            dragFrom = Array.prototype.indexOf.call(xlist.children, item);
+            item.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+          });
+          xlist.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            var item = e.target.closest(".xitem");
+            if (!item || dragFrom == null) return;
+            var over = Array.prototype.indexOf.call(xlist.children, item);
+            if (over !== dragFrom) item.classList.add("drop-target");
+          });
+          xlist.addEventListener("dragleave", function (e) {
+            var item = e.target.closest(".xitem");
+            if (item) item.classList.remove("drop-target");
+          });
+          xlist.addEventListener("drop", function (e) {
+            e.preventDefault();
+            var item = e.target.closest(".xitem");
+            if (item && dragFrom != null) {
+              var over = Array.prototype.indexOf.call(xlist.children, item);
+              if (over !== dragFrom && over !== -1) {
+                var arr = WORKS[idx].images;
+                var moved = arr.splice(dragFrom, 1)[0];
+                if (dragFrom < over) over -= 1;
+                arr.splice(over, 0, moved);
+                WORKS[idx].image = arr[0];
+                dirty = true;
+                renderWorks();
+                setStatus("组图顺序已调整，记得点“保存”");
+                return;
+              }
+            }
+            xlist.querySelectorAll(".dragging, .drop-target").forEach(function (n) {
+              n.classList.remove("dragging", "drop-target");
+            });
+            dragFrom = null;
+          });
+          xlist.addEventListener("dragend", function () {
+            xlist.querySelectorAll(".dragging, .drop-target").forEach(function (n) {
+              n.classList.remove("dragging", "drop-target");
+            });
+            dragFrom = null;
+          });
+          fields.appendChild(xlist);
+        }
+
+        /* 足迹系列：「更多」照片（前端「查看更多」弹层展示） */
+        var more = Array.isArray(w.more) ? w.more : [];
+        w.more = more;
+        var moreHead = document.createElement("div");
+        moreHead.className = "more-head";
+        moreHead.textContent = "更多照片（足迹页点「查看更多」弹层展示）";
+        fields.appendChild(moreHead);
+        if (more.length) {
+          fields.appendChild(makeXList(more, function (action) {
+            dirty = true;
+            renderWorks();
+            setStatus(
+              action === "remove"
+                ? "已从「更多」移除一张，记得点“保存”"
+                : "「更多」照片顺序已调整，记得点“保存”"
+            );
+          }));
+        }
+        var moreBar = document.createElement("div");
+        moreBar.className = "more-bar";
+        var moreAddBtn = document.createElement("button");
+        moreAddBtn.type = "button";
+        moreAddBtn.className = "btn small";
+        moreAddBtn.textContent = "添加更多照片";
+        var moreAddInput = document.createElement("input");
+        moreAddInput.type = "file";
+        moreAddInput.accept = "image/*";
+        moreAddInput.multiple = true;
+        moreAddInput.hidden = true;
+        moreAddBtn.addEventListener("click", function () { moreAddInput.click(); });
+        moreAddInput.addEventListener("change", function () {
+          var files = Array.prototype.slice.call(this.files);
+          this.value = "";
+          if (!files.length) return;
+          uploadFiles(files, function (paths, errors) {
+            if (errors.length) setStatus("部分图片上传失败：" + errors.join("；"), true);
+            if (!paths.length) return;
+            var w3 = WORKS[idx];
+            w3.more = (Array.isArray(w3.more) ? w3.more : []).concat(paths);
+            dirty = true;
+            renderWorks();
+            scheduleAutoSave();
+            setStatus(
+              errors.length
+                ? "已添加 " + paths.length + " 张到「更多」（另有失败），已自动保存"
+                : "已添加 " + paths.length + " 张到「更多」，已自动保存"
+            );
+          });
+        });
+        moreBar.appendChild(moreAddBtn);
+        moreBar.appendChild(moreAddInput);
+        fields.appendChild(moreBar);
+      }
+
+      var actions = document.createElement("div");
+      actions.className = "w-actions";
+      var posLabel = null;
+      var posInput = null;
+      var moveToBtn = null;
+      if (w.group === "business") {
+        posLabel = document.createElement("span");
+        posLabel.className = "pos-label";
+        posInput = document.createElement("input");
+        posInput.type = "number";
+        posInput.min = "1";
+        posInput.className = "pos-input";
+        posInput.title = "输入目标序号后回车或点「移动」";
+        moveToBtn = document.createElement("button");
+        moveToBtn.type = "button";
+        moveToBtn.className = "btn small";
+        moveToBtn.textContent = "移动";
+        var syncPos = function () {
+          var gp = groupPos(idx);
+          if (!gp) {
+            posLabel.textContent = "序号 -";
+            posInput.value = "";
+            return;
+          }
+          posLabel.textContent = "序号 " + (gp.pos + 1) + " / " + gp.len;
+          posInput.max = String(gp.len);
+        };
+        syncPos();
+        var doMove = function () {
+          var gp = groupPos(idx);
+          if (!gp) return;
+          var n = parseInt(posInput.value, 10);
+          if (isNaN(n) || n < 1 || n > gp.len) {
+            setStatus("请输入 1 - " + gp.len + " 之间的序号", true);
+            return;
+          }
+          if (!moveWorkTo(idx, n - 1)) return;
+          dirty = true;
+          renderWorks();
+          scheduleAutoSave();
+          setStatus("已移动到第 " + n + " 位，已自动保存");
+        };
+        posInput.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            doMove();
+          }
+        });
+        moveToBtn.addEventListener("click", doMove);
+        actions.appendChild(posLabel);
+        actions.appendChild(posInput);
+        actions.appendChild(moveToBtn);
+      }
+      var topBtn = document.createElement("button");
+      topBtn.type = "button";
+      topBtn.className = "btn small";
+      topBtn.textContent = "移到最上";
+      topBtn.addEventListener("click", function () {
+        if (!moveWorkTo(idx, 0)) return;
+        dirty = true;
+        renderWorks();
+        scheduleAutoSave();
+        setStatus("已移到最上，已自动保存");
+      });
+      var upBtn = document.createElement("button");
+      upBtn.type = "button";
+      upBtn.className = "btn small";
+      upBtn.textContent = "上移";
+      upBtn.addEventListener("click", function () {
+        var gp = groupPos(idx);
+        if (!gp || gp.pos <= 0 || !moveWorkTo(idx, gp.pos - 1)) return;
+        dirty = true;
+        renderWorks();
+        scheduleAutoSave();
+        setStatus("已上移，已自动保存");
+      });
+      var downBtn = document.createElement("button");
+      downBtn.type = "button";
+      downBtn.className = "btn small";
+      downBtn.textContent = "下移";
+      downBtn.addEventListener("click", function () {
+        var gp = groupPos(idx);
+        if (!gp || gp.pos >= gp.len - 1 || !moveWorkTo(idx, gp.pos + 1)) return;
+        dirty = true;
+        renderWorks();
+        scheduleAutoSave();
+        setStatus("已下移，已自动保存");
+      });
+      var bottomBtn = document.createElement("button");
+      bottomBtn.type = "button";
+      bottomBtn.className = "btn small";
+      bottomBtn.textContent = "移到最下";
+      bottomBtn.addEventListener("click", function () {
+        var gp = groupPos(idx);
+        if (!gp || !moveWorkTo(idx, gp.len - 1)) return;
+        dirty = true;
+        renderWorks();
+        scheduleAutoSave();
+        setStatus("已移到最下，已自动保存");
+      });
+      actions.appendChild(topBtn);
+      actions.appendChild(upBtn);
+      actions.appendChild(downBtn);
+      actions.appendChild(bottomBtn);
+      if (withGroupImgs) {
+        var addImgBtn = document.createElement("button");
+        addImgBtn.type = "button";
+        addImgBtn.className = "btn small";
+        addImgBtn.textContent = "添加组图";
+        var addImgInput = document.createElement("input");
+        addImgInput.type = "file";
+        addImgInput.accept = "image/*";
+        addImgInput.multiple = true;
+        addImgInput.hidden = true;
+        addImgBtn.addEventListener("click", function () { addImgInput.click(); });
+        addImgInput.addEventListener("change", function () {
+          var files = Array.prototype.slice.call(this.files);
+          this.value = "";
+          if (!files.length) return;
+          uploadFiles(files, function (paths, errors) {
+            if (errors.length) setStatus("部分图片上传失败：" + errors.join("；"), true);
+            if (!paths.length) return;
+            var w2 = WORKS[idx];
+            w2.images = (Array.isArray(w2.images) ? w2.images : []).concat(paths);
+            if (!w2.image && w2.images.length) w2.image = w2.images[0];
+            dirty = true;
+            renderWorks();
+            scheduleAutoSave();
+            setStatus(errors.length ? "已添加 " + paths.length + " 张（另有失败），已自动保存" : "已添加组图，已自动保存");
+          });
+        });
+        actions.appendChild(addImgBtn);
+        actions.appendChild(addImgInput);
+      }
+      var delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn small danger";
+      delBtn.textContent = "删除";
+      delBtn.addEventListener("click", function () {
+        if (!window.confirm("确定删除作品“" + (WORKS[idx].title || "") + "”？")) return;
+        WORKS.splice(idx, 1);
+        dirty = true;
+        renderWorks();
+        scheduleAutoSave();
+        setStatus("已删除，已自动保存");
+      });
+      actions.appendChild(delBtn);
+      fields.appendChild(actions);
+
+      card.appendChild(left);
+      card.appendChild(fields);
+      return card;
+    }
+
+    function bindAddPhotos(btnId, inputId, group, defaultCategory) {
+      el(btnId).addEventListener("click", function () { el(inputId).click(); });
+      el(inputId).addEventListener("change", function () {
+        var files = Array.prototype.slice.call(this.files);
+        this.value = "";
+        if (!files.length) return;
+        uploadFiles(files, function (paths, errors) {
+          if (!paths.length) {
+            setStatus("上传失败：" + (errors.join("；") || "未知错误"), true);
+            return;
+          }
+          var cat = typeof defaultCategory === "function" ? defaultCategory() : defaultCategory;
+          var items = paths.map(function (path, i) {
+            var title = (files[i].name || "新作品").replace(/\.[^.]+$/, "");
+            return {
+              title: title,
+              group: group,
+              category: cat,
+              image: path,
+              images: [path],
+              more: [],
+              description: ""
+            };
+          });
+          WORKS.unshift.apply(WORKS, items);
+          dirty = true;
+          renderWorks();
+          scheduleAutoSave();
+          setStatus(errors.length ? "已添加 " + paths.length + " 张（" + errors.length + " 张失败），已自动保存" : "已添加 " + paths.length + " 张照片，已自动保存");
+        });
+      });
+    }
+
+    /* ---------- 封面轮播 ---------- */
+    function renderCarousel() {
+      var list = el("cfList");
+      list.innerHTML = "";
+      CAROUSEL.forEach(function (it, idx) {
+        list.appendChild(makeCfCard(it, idx));
+      });
+      el("cfCount").textContent = CAROUSEL.length + " 张";
+    }
+
+    function makeCfCard(item, idx) {
+      var card = document.createElement("div");
+      card.className = "work";
+
+      var left = document.createElement("div");
+      left.className = "w-img";
+      var thumb = document.createElement("img");
+      thumb.className = "w-thumb";
+      thumb.src = assetUrl(item.src);
+      thumb.alt = item.title || "封面";
+      var replaceBtn = document.createElement("button");
+      replaceBtn.type = "button";
+      replaceBtn.className = "btn small";
+      replaceBtn.textContent = "更换图片";
+      var fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.hidden = true;
+      replaceBtn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var f = this.files[0];
+        if (!f) return;
+        uploadFile(f, function (err, path) {
+          if (err) { setStatus("上传失败：" + err, true); return; }
+          CAROUSEL[idx].src = path;
+          thumb.src = assetUrl(path);
+          srcInput.value = path;
+          dirty = true;
+          scheduleAutoSave();
+        });
+        this.value = "";
+      });
+      left.appendChild(thumb);
+      left.appendChild(replaceBtn);
+      left.appendChild(fileInput);
+
+      var fields = document.createElement("div");
+      fields.className = "w-fields";
+
+      var srcInput = document.createElement("input");
+      srcInput.type = "text";
+      srcInput.placeholder = "图片地址（上传后自动填入，也可直接粘贴链接）";
+      srcInput.value = item.src || "";
+      srcInput.addEventListener("input", function () {
+        CAROUSEL[idx].src = srcInput.value.trim();
+        thumb.src = assetUrl(srcInput.value);
+        dirty = true;
+      });
+      fields.appendChild(srcInput);
+
+      var row1 = document.createElement("div");
+      row1.className = "w-row";
+      var titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.placeholder = "标题（如：潮汐）";
+      titleInput.value = item.title || "";
+      titleInput.addEventListener("input", function () {
+        CAROUSEL[idx].title = titleInput.value;
+        dirty = true;
+      });
+      var subInput = document.createElement("input");
+      subInput.type = "text";
+      subInput.placeholder = "副标题（如：全长专辑）";
+      subInput.value = item.subtitle || "";
+      subInput.addEventListener("input", function () {
+        CAROUSEL[idx].subtitle = subInput.value;
+        dirty = true;
+      });
+      row1.appendChild(titleInput);
+      row1.appendChild(subInput);
+      fields.appendChild(row1);
+
+      var altInput = document.createElement("input");
+      altInput.type = "text";
+      altInput.placeholder = "图片描述（无障碍 alt，可选）";
+      altInput.value = item.alt || "";
+      altInput.addEventListener("input", function () {
+        CAROUSEL[idx].alt = altInput.value;
+        dirty = true;
+      });
+      fields.appendChild(altInput);
+
+      /* 说明信息（meta）：每行 名称 + 内容 */
+      var metaWrap = document.createElement("div");
+      metaWrap.className = "cf-meta-editor";
+      var metaTitle = document.createElement("p");
+      metaTitle.className = "cf-meta-head";
+      metaTitle.textContent = "说明信息（每行：名称 + 内容，可增删）";
+      metaWrap.appendChild(metaTitle);
+      var metaRows = document.createElement("div");
+      metaRows.className = "cf-meta-rows";
+      function renderMetaRows() {
+        metaRows.innerHTML = "";
+        if (!Array.isArray(CAROUSEL[idx].meta)) CAROUSEL[idx].meta = [];
+        CAROUSEL[idx].meta.forEach(function (row, j) {
+          var r = document.createElement("div");
+          r.className = "cf-meta-row";
+          var lab = document.createElement("input");
+          lab.type = "text";
+          lab.placeholder = "名称（如：年份）";
+          lab.value = row.label || "";
+          lab.addEventListener("input", function () {
+            CAROUSEL[idx].meta[j].label = lab.value;
+            dirty = true;
+          });
+          var val = document.createElement("input");
+          val.type = "text";
+          val.placeholder = "内容（如：2019）";
+          val.value = row.value || "";
+          val.addEventListener("input", function () {
+            CAROUSEL[idx].meta[j].value = val.value;
+            dirty = true;
+          });
+          var x = document.createElement("button");
+          x.type = "button";
+          x.className = "btn small danger";
+          x.textContent = "×";
+          x.setAttribute("aria-label", "删除这一行");
+          x.addEventListener("click", function () {
+            CAROUSEL[idx].meta.splice(j, 1);
+            renderMetaRows();
+            dirty = true;
+          });
+          r.appendChild(lab);
+          r.appendChild(val);
+          r.appendChild(x);
+          metaRows.appendChild(r);
+        });
+      }
+      renderMetaRows();
+      var addMetaBtn = document.createElement("button");
+      addMetaBtn.type = "button";
+      addMetaBtn.className = "btn small";
+      addMetaBtn.textContent = "添加说明行";
+      addMetaBtn.addEventListener("click", function () {
+        if (!Array.isArray(CAROUSEL[idx].meta)) CAROUSEL[idx].meta = [];
+        CAROUSEL[idx].meta.push({ label: "", value: "" });
+        renderMetaRows();
+        dirty = true;
+      });
+      metaWrap.appendChild(metaRows);
+      metaWrap.appendChild(addMetaBtn);
+      fields.appendChild(metaWrap);
+
+      var actions = document.createElement("div");
+      actions.className = "w-actions";
+      var upBtn = document.createElement("button");
+      upBtn.type = "button";
+      upBtn.className = "btn small";
+      upBtn.textContent = "上移";
+      upBtn.addEventListener("click", function () {
+        if (idx <= 0) return;
+        var tmp = CAROUSEL[idx];
+        CAROUSEL[idx] = CAROUSEL[idx - 1];
+        CAROUSEL[idx - 1] = tmp;
+        dirty = true;
+        renderCarousel();
+        setStatus("已上移，记得点“保存”");
+      });
+      var downBtn = document.createElement("button");
+      downBtn.type = "button";
+      downBtn.className = "btn small";
+      downBtn.textContent = "下移";
+      downBtn.addEventListener("click", function () {
+        if (idx >= CAROUSEL.length - 1) return;
+        var tmp = CAROUSEL[idx];
+        CAROUSEL[idx] = CAROUSEL[idx + 1];
+        CAROUSEL[idx + 1] = tmp;
+        dirty = true;
+        renderCarousel();
+        setStatus("已下移，记得点“保存”");
+      });
+      var delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn small danger";
+      delBtn.textContent = "删除";
+      delBtn.addEventListener("click", function () {
+        if (!window.confirm("确定删除这张封面？")) return;
+        CAROUSEL.splice(idx, 1);
+        dirty = true;
+        renderCarousel();
+        setStatus("已删除，记得点“保存”");
+      });
+      actions.appendChild(upBtn);
+      actions.appendChild(downBtn);
+      actions.appendChild(delBtn);
+      fields.appendChild(actions);
+
+      card.appendChild(left);
+      card.appendChild(fields);
+      return card;
+    }
+
+    /* ---------- 首页组件 ---------- */
+    function renderHomeCmp() {
+      renderScroll01();
+      renderHero07();
+    }
+
+    function renderScroll01() {
+      var list = el("scroll01List");
+      list.innerHTML = "";
+      SITE.home.scroll01.forEach(function (s, i) {
+        var card = document.createElement("div");
+        card.className = "work";
+
+        var left = document.createElement("div");
+        left.className = "w-img";
+        var thumb = document.createElement("img");
+        thumb.className = "w-thumb";
+        thumb.src = assetUrl(s.image);
+        thumb.alt = "滚动叙事 " + (i + 1);
+        var replaceBtn = document.createElement("button");
+        replaceBtn.type = "button";
+        replaceBtn.className = "btn small";
+        replaceBtn.textContent = "更换图片";
+        var fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.hidden = true;
+        replaceBtn.addEventListener("click", function () { fileInput.click(); });
+        fileInput.addEventListener("change", function () {
+          var f = this.files[0];
+          if (!f) return;
+          uploadFile(f, function (err, path) {
+            if (err) { setStatus("上传失败：" + err, true); return; }
+            SITE.home.scroll01[i].image = path;
+            thumb.src = assetUrl(path);
+            dirty = true;
+            scheduleAutoSave();
+          });
+          this.value = "";
+        });
+        left.appendChild(thumb);
+        left.appendChild(replaceBtn);
+        left.appendChild(fileInput);
+
+        var fields = document.createElement("div");
+        fields.className = "w-fields";
+        var num = document.createElement("p");
+        num.className = "cf-meta-head";
+        num.textContent = "第 " + (i + 1) + " 张";
+        fields.appendChild(num);
+
+        var titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.placeholder = "标题（如：Build faster）";
+        titleInput.value = s.title || "";
+        titleInput.addEventListener("input", function () {
+          SITE.home.scroll01[i].title = titleInput.value;
+          dirty = true;
+        });
+        fields.appendChild(titleInput);
+
+        var descInput = document.createElement("textarea");
+        descInput.placeholder = "描述文字";
+        descInput.value = s.description || "";
+        descInput.addEventListener("input", function () {
+          SITE.home.scroll01[i].description = descInput.value;
+          dirty = true;
+        });
+        fields.appendChild(descInput);
+
+        card.appendChild(left);
+        card.appendChild(fields);
+        list.appendChild(card);
+      });
+    }
+
+    function renderHero07() {
+      var ed = el("hero07Editor");
+      ed.innerHTML = "";
+      var h = SITE.home.hero07;
+
+      var imgWrap = document.createElement("div");
+      imgWrap.className = "img-row";
+      var preview = document.createElement("img");
+      preview.src = assetUrl(h.image);
+      preview.alt = "摄影理念配图预览";
+      var btnWrap = document.createElement("div");
+      var replaceBtn = document.createElement("button");
+      replaceBtn.type = "button";
+      replaceBtn.className = "btn small";
+      replaceBtn.textContent = "更换图片";
+      var fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.hidden = true;
+      replaceBtn.addEventListener("click", function () { fileInput.click(); });
+      fileInput.addEventListener("change", function () {
+        var f = this.files[0];
+        if (!f) return;
+        uploadFile(f, function (err, path) {
+          if (err) { setStatus("上传失败：" + err, true); return; }
+          SITE.home.hero07.image = path;
+          preview.src = assetUrl(path);
+          dirty = true;
+          scheduleAutoSave();
+        });
+        this.value = "";
+      });
+      btnWrap.appendChild(replaceBtn);
+      btnWrap.appendChild(fileInput);
+      imgWrap.appendChild(preview);
+      imgWrap.appendChild(btnWrap);
+      ed.appendChild(imgWrap);
+
+      function addField(labelText, key, placeholder, textarea) {
+        var field = document.createElement("div");
+        field.className = "field";
+        var label = document.createElement("label");
+        label.textContent = labelText;
+        field.appendChild(label);
+        var input;
+        if (textarea) {
+          input = document.createElement("textarea");
+          input.placeholder = placeholder;
+        } else {
+          input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = placeholder;
+        }
+        input.value = h[key] || "";
+        input.addEventListener("input", function () {
+          SITE.home.hero07[key] = input.value;
+          dirty = true;
+        });
+        field.appendChild(input);
+        ed.appendChild(field);
+      }
+      addField("标签行（如：关于影像 · 关于选择）", "tagline", "关于影像 · 关于选择");
+      addField("标题", "title", "让每一次快门，都成为值得被记住的瞬间。");
+      addField("描述", "description", "摄影理念描述", true);
+    }
+
+    /* ---------- 保存 ---------- */
+    function saveAll(auto) {
+      if (pendingUploads > 0) {
+        setStatus("还有 " + pendingUploads + " 张图片正在上传，请等上传完成后再点“保存”", true);
+        return;
+      }
+      setStatus(auto ? "正在自动保存…" : "保存中…");
+      SITE.carousel = CAROUSEL;
+      SITE.businessCategories = bizCategories;
+      function checkAuth(r) {
+        if (r.status === 401) {
+          location.replace("/manage/login.html");
+          throw new Error("未登录或登录已过期，请重新登录");
+        }
+        return r.json();
+      }
+      var p1 = fetch("/api/site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(SITE, null, 2)
+      }).then(checkAuth);
+      var p2 = fetch("/api/works", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ works: WORKS }, null, 2)
+      }).then(checkAuth);
+      Promise.all([p1, p2])
+        .then(function (rs) {
+          if (!rs[0].ok) throw new Error(rs[0].error || "站点设置保存失败");
+          if (!rs[1].ok) throw new Error(rs[1].error || "作品保存失败");
+          dirty = false;
+          setStatus(auto ? "已自动保存" : "保存成功，刷新网站即可看到");
+        })
+        .catch(function (e) {
+          setStatus("保存失败：" + e.message, true);
+        });
+    }
+
+    /* ---------- 事件 ---------- */
+    el("saveBtn").addEventListener("click", saveAll);
+    el("publishBtn").addEventListener("click", function () {
+      if (dirty && !window.confirm("还有未保存的修改，发布不会包含它们。先保存再发布？")) return;
+      var btn = el("publishBtn");
+      btn.disabled = true;
+      setStatus("正在发布：压缩图片 → 上传 OSS → git push…");
+      fetch("/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}"
+      })
+        .then(function (r) {
+          if (r.status === 401) {
+            location.replace("/manage/login.html");
+            throw new Error("未登录或登录已过期，请重新登录");
+          }
+          return r.json();
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.error || "发布失败");
+          setStatus("已发布，Netlify 正在自动部署（约 1~2 分钟）");
+        })
+        .catch(function (e) {
+          setStatus("发布失败：" + e.message, true);
+        })
+        .then(function () {
+          btn.disabled = false;
+        });
+    });
+    el("reloadBtn").addEventListener("click", function () {
+      if (!dirty || window.confirm("放弃未保存的修改？")) load();
+    });
+    el("logoutBtn").addEventListener("click", function () {
+      fetch("/api/logout", { method: "POST" })
+        .then(function () { location.href = "/manage/login.html"; })
+        .catch(function () { location.href = "/manage/login.html"; });
+    });
+    el("tabHomeBtn").addEventListener("click", function () { switchTab("home"); });
+    el("tabBizBtn").addEventListener("click", function () { switchTab("business"); });
+    el("tabCfBtn").addEventListener("click", function () { switchTab("cf"); });
+    el("tabHomeCmpBtn").addEventListener("click", function () { switchTab("homecmp"); });
+    function switchTab(which) {
+      el("tabHomeBtn").classList.toggle("active", which === "home");
+      el("tabBizBtn").classList.toggle("active", which === "business");
+      el("tabCfBtn").classList.toggle("active", which === "cf");
+      el("tabHomeCmpBtn").classList.toggle("active", which === "homecmp");
+      el("panelHome").classList.toggle("active", which === "home");
+      el("panelBiz").classList.toggle("active", which === "business");
+      el("panelCf").classList.toggle("active", which === "cf");
+      el("panelHomeCmp").classList.toggle("active", which === "homecmp");
+    }
+    bindText("footerXhs", "footerXhs");
+    bindText("contactEmail", "contactEmail");
+    bindText("aboutPhilosophy", "aboutPhilosophy");
+    bindText("aboutExperience", "aboutExperience");
+    bindImageSlot("aboutImageBtn", "aboutImageInput", "aboutImagePreview", "aboutImage");
+    bindAddPhotos("addHomeBtn", "addHomeFiles", "adventure", "东京");
+    el("addCatBtn").addEventListener("click", function () {
+      var name = window.prompt("请输入新分类名称（例如：photo、Create、video）", "");
+      if (name == null) return;
+      name = name.trim();
+      if (!name) { setStatus("分类名称不能为空", true); return; }
+      var lower = name.toLowerCase();
+      var exists = bizCategories.some(function (c) { return String(c).toLowerCase() === lower; });
+      if (exists) { setStatus("分类「" + name + "」已存在", true); return; }
+      bizCategories.push(name);
+      bizCat = name;
+      dirty = true;
+      renderCatOptions();
+      renderWorks();
+      scheduleAutoSave();
+      setStatus("已新增分类「" + name + "」，已自动保存");
+    });
+    el("addCfBtn").addEventListener("click", function () {
+      CAROUSEL.push({ src: "", alt: "", title: "新封面", subtitle: "", meta: [] });
+      dirty = true;
+      renderCarousel();
+      setStatus("已添加卡片，记得点“保存”");
+    });
+
+    setInterval(function () {
+      var h = new Date().getHours();
+      document.documentElement.setAttribute("data-theme", h >= 6 && h < 17 ? "light" : "dark");
+    }, 60000);
+
+    load();
+  </script>
+</body>
+</html>

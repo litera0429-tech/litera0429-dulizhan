@@ -1,0 +1,273 @@
+/* ---------- Hero 07 编辑式版式（对应 React 组件 Hero07，配色跟随站点主题） ---------- */
+
+.zz-hero07 {
+  position: relative;
+  z-index: 2;
+  background: var(--bg);
+  /* 与上方封面（视频）拉开距离 */
+  padding-top: clamp(110px, 15vw, 260px);
+  transition: background-color 0.5s ease;
+}
+
+.zz-hero07-media {
+  width: 100%;
+  overflow: hidden;
+}
+
+.zz-hero07-media-inner {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2 / 1;
+  border-radius: 4px 4px 0 0;
+  /* 仅底部保留渐隐，图片上方不再做模糊过渡 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent 95%);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent 95%);
+}
+
+.zz-hero07-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background: var(--bg);
+  opacity: 0.3;
+}
+
+:root[data-theme="light"] .zz-hero07-shade {
+  opacity: 0.15;
+}
+
+.zz-hero07-img {
+  position: relative;
+  top: -10%;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: center;
+  outline: 1px solid var(--line);
+  will-change: transform;
+}
+
+:root[data-theme="dark"] .zz-hero07-img {
+  filter: brightness(0.97) saturate(0.92);
+}
+
+@media (min-width: 640px) {
+  .zz-hero07-media-inner {
+    aspect-ratio: 2 / 1;
+  }
+}
+
+.zz-hero07-grid {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 9rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+.zz-hero07-tagline {
+  max-width: 20rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--dim);
+}
+
+.zz-hero07-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.zz-hero07-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.875rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.zz-hero07-desc {
+  max-width: 36rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  color: var(--dim);
+}
+
+.zz-hero07-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.zz-hero07-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: opacity 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.zz-hero07-btn-primary {
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 500;
+}
+
+.zz-hero07-btn-primary:hover {
+  opacity: 0.85;
+}
+
+.zz-hero07-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.zz-hero07-btn-primary .zz-hero07-arrow {
+  display: inline-block;
+  margin-left: 0.35rem;
+  animation: zzArrowNudge 2s ease-in-out infinite;
+}
+
+.zz-hero07-btn-primary:hover .zz-hero07-arrow {
+  transform: translateX(3px);
+}
+
+@keyframes zzArrowNudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+.zz-hero07-btn-link {
+  color: var(--text);
+  text-underline-offset: 4px;
+}
+
+.zz-hero07-btn-link:hover {
+  text-decoration: underline;
+}
+
+.zz-hero07-btn-link .zz-hero07-arrow {
+  display: inline-block;
+  margin-left: 0.35rem;
+  transition: transform 0.25s ease;
+}
+
+.zz-hero07-btn-link:hover .zz-hero07-arrow {
+  transform: translateX(3px);
+}
+
+@media (min-width: 640px) {
+  .zz-hero07-tagline {
+    font-size: 1rem;
+  }
+
+  .zz-hero07-title {
+    font-size: 2.25rem;
+  }
+
+  .zz-hero07-desc {
+    font-size: 1rem;
+  }
+
+  .zz-hero07-body {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .zz-hero07-title {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .zz-hero07-grid {
+    grid-template-columns: repeat(12, 1fr);
+    padding-top: 3rem;
+    padding-bottom: 15rem;
+  }
+
+  .zz-hero07-tagline {
+    grid-column: 1 / span 4;
+    align-self: start;
+  }
+
+  .zz-hero07-body {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* ---------- 滚动显现动画（对应组件 animation="subtle"） ---------- */
+
+.zz-hero07[data-anim="on"] .zz-rv {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(16px);
+}
+
+.zz-hero07[data-anim="on"] .zz-hero07-media-inner {
+  opacity: 0;
+  transform: scale(1.35) translateY(64px);
+  filter: blur(26px);
+}
+
+.zz-hero07[data-anim="on"].is-in .zz-rv {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 大图：更大缩放 + 更强模糊，缓慢回正入场，效果更明显 */
+.zz-hero07[data-anim="on"].is-in .zz-hero07-media-inner {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zz-hero07[data-anim="on"].is-in .zz-rv-1 {
+  transition-delay: 0.18s;
+}
+
+.zz-hero07[data-anim="on"].is-in .zz-rv-2 {
+  transition-delay: 0.32s;
+}
+
+.zz-hero07[data-anim="on"].is-in .zz-rv-3 {
+  transition-delay: 0.46s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zz-hero07[data-anim="on"] .zz-rv,
+  .zz-hero07[data-anim="on"] .zz-hero07-media-inner {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

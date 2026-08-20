@@ -1,0 +1,143 @@
+/* ---------- Scroll01 滚动图文（对应 React 组件 Scroll01，样式按组件原版落地，配色跟随站点主题） ---------- */
+
+.zz-scroll01 {
+  position: relative;
+  z-index: 2;
+  background: var(--bg);
+  /* 区块上下留白：比组件演示页更宽松，配合本站版面节奏 */
+  padding: clamp(180px, 18vw, 320px) clamp(24px, 4vw, 52px);
+  transition: background-color 0.5s ease;
+}
+
+/* 桌面端：左侧吸顶图片 + 右侧滚动文字（对应组件 md 双栏） */
+.zz-scroll01-stage {
+  display: none;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.zz-scroll01-media {
+  position: sticky;
+  top: 20vh;
+  align-self: start;
+}
+
+.zz-scroll01-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  max-height: 70vh;
+  border-radius: 1rem;
+  background: var(--bg-elev);
+  outline: 1px solid var(--line);
+}
+
+.zz-scroll01-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.15s linear;
+  will-change: opacity;
+}
+
+.zz-scroll01-img.is-active {
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .zz-scroll01-img {
+  filter: brightness(0.97) saturate(0.92);
+}
+
+.zz-scroll01-copy {
+  padding: 35vh 0;
+}
+
+.zz-scroll01-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  opacity: 1;
+  will-change: opacity, transform;
+}
+
+.zz-scroll01-item + .zz-scroll01-item {
+  margin-top: 36vh;
+}
+
+.zz-scroll01-title {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-wrap: balance;
+  white-space: pre-line;
+}
+
+.zz-scroll01-desc {
+  max-width: 28rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  color: var(--dim);
+}
+
+/* 移动端：顺序堆叠的图文卡片（对应组件 md:hidden 分支） */
+.zz-scroll01-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.zz-scroll01-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.zz-scroll01-card-img {
+  width: 100%;
+  height: 18rem;
+  border-radius: 1rem;
+  object-fit: cover;
+  background: var(--bg-elev);
+  outline: 1px solid var(--line);
+}
+
+@media (min-width: 768px) {
+  .zz-scroll01-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .zz-scroll01-mobile {
+    display: none;
+  }
+}
+
+/* 减弱动态：不做淡入淡出与位移，直接呈现全部内容 */
+@media (prefers-reduced-motion: reduce) {
+  .zz-scroll01-img {
+    opacity: 0;
+  }
+
+  .zz-scroll01-img:first-child,
+  .zz-scroll01-img.is-active {
+    opacity: 1;
+  }
+
+  .zz-scroll01-item {
+    opacity: 1;
+    transform: none;
+  }
+}

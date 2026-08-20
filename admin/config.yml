@@ -1,0 +1,63 @@
+backend:
+  name: git-gateway
+  branch: main
+  accept_roles:
+    - admin
+    - editor
+
+local_backend: false
+
+media_folder: "images/uploads"
+public_folder: "images/uploads"
+
+publish_mode: editorial_workflow
+
+collections:
+  - name: settings
+    label: 站点设置
+    files:
+      - name: site
+        label: 首页与关于页
+        file: content/site.json
+        fields:
+          - { label: 首页大图, name: heroImage, widget: image, hint: "建议宽度不超过 2000px" }
+          - { label: 首页标题, name: heroTitle, widget: string }
+          - { label: 首页副标题, name: heroSubtitle, widget: string }
+          - { label: 关于·摄影理念, name: aboutPhilosophy, widget: text }
+          - { label: 关于·个人经历, name: aboutExperience, widget: text, hint: "可用换行分段" }
+          - { label: 关于页照片, name: aboutImage, widget: image }
+          - { label: 联系邮箱, name: contactEmail, widget: string }
+
+  - name: works
+    label: 摄影作品
+    files:
+      - name: works
+        label: 作品列表
+        file: content/works.json
+        fields:
+          - label: 作品
+            name: works
+            widget: list
+            collapsed: false
+            summary: "{{fields.title}} · {{fields.group}} / {{fields.category}}"
+            fields:
+              - { label: 作品名称, name: title, widget: string }
+              - label: 所属栏目
+                name: group
+                widget: select
+                options:
+                  - { label: 冒险（肘子鱼的奇妙冒险）, value: adventure }
+                  - { label: 商业（肘子鱼的商业行迹）, value: business }
+                default: adventure
+              - label: 作品分类
+                name: category
+                widget: select
+                options:
+                  - 东京
+                  - 北海道
+                  - 泰国
+                  - photo
+                  - 视频mv
+                default: 东京
+              - { label: 作品图片, name: image, widget: image, hint: "建议宽度不超过 2000px" }
+              - { label: 作品描述（可选）, name: description, widget: text, required: false }

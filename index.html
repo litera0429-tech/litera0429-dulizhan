@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>肘子鱼 · 摄影作品集</title>
+  <meta name="description" content="肘子鱼的摄影作品集：记录光影、旅行与故事。">
+  <script>
+    (function () {
+      var pref = null;
+      try { pref = localStorage.getItem("zzTheme"); } catch (e) {}
+      var theme;
+      if (pref === "light" || pref === "dark") {
+        theme = pref;
+      } else {
+        var h = new Date().getHours();
+        theme = h >= 6 && h < 17 ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230c0c0c'/%3E%3Ctext x='50' y='70' font-size='44' text-anchor='middle' fill='%23f2f2ef' font-family='serif'%3E肘鱼%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css?v=63">
+  <link rel="stylesheet" href="css/coverflow.css?v=11">
+  <link rel="stylesheet" href="css/hero07.css?v=11">
+  <link rel="stylesheet" href="css/scroll01.css?v=5">
+</head>
+<body class="home">
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="index.html">肘子鱼</a>
+    <nav class="site-nav" id="siteNav" aria-label="主导航">
+      <button class="nav-switch" id="themeSwitch" type="button" aria-label="切换深浅色主题" onclick="(function(){var r=document.documentElement;var n=r.getAttribute('data-theme')==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('zzTheme',n);}catch(e){}})();">SWITCH</button>
+      <a href="index.html" class="active">HOME主页</a>
+      <a href="footprint.html">FOOTPRINT足迹</a>
+      <a href="business.html">BUSINESS商业</a>
+      <a href="about.html">ABOUT关于</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="打开菜单" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <div class="hero-pin">
+      <section class="hero">
+        <video class="hero-video" src="images/cover.mp4" poster="images/home/hero.jpg" autoplay muted loop playsinline preload="auto"></video>
+        <div class="hero-overlay"></div>
+        <div class="hero-copy">
+          <h1 class="hero-title" id="heroTitle">肘子鱼</h1>
+          <p class="hero-kicker">PHOTOGRAPHY PORTFOLIO</p>
+        </div>
+        <div class="hero-foot">
+          <a class="hero-link" href="#coverflow">IMMERSIVE /浏览画廊 <span>↓</span></a>
+        </div>
+        <div class="hero-scroll">SCROLL</div>
+      </section>
+    </div>
+    <noscript>
+      <style>
+        .hero-copy,
+        .hero-copy .hero-kicker,
+        .hero-copy .hero-title,
+        .hero-copy .hero-subtitle,
+        .hero-copy .hero-link {
+          opacity: 1 !important;
+          transform: none !important;
+          filter: none !important;
+        }
+      </style>
+    </noscript>
+
+    <section class="cf-section" id="coverflow" aria-label="封面轮播">
+      <div class="cf-head">
+        <h2 class="cf-head-title">RECOMMEND</h2>
+        <span class="cf-head-sub">也许可以点击它</span>
+      </div>
+      <div class="cf-stage">
+        <div class="cf-frame" id="cfFrame" tabindex="0" role="region" aria-roledescription="carousel" aria-label="封面轮播">
+          <div class="cf-track" id="cfTrack"></div>
+        </div>
+      </div>
+      <div class="cf-caption" id="cfCaption"></div>
+    </section>
+
+    <section class="zz-hero07" id="editorial" aria-label="摄影理念">
+      <div class="zz-hero07-media zz-rv zz-rv-media">
+        <div class="zz-hero07-media-inner">
+          <div class="zz-hero07-shade" aria-hidden="true"></div>
+          <img
+            class="zz-hero07-img"
+            src="https://images.unsplash.com/photo-1578301978018-3005759f48f7?q=80&w=1144&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="现代住宅建筑"
+            decoding="async"
+          >
+        </div>
+      </div>
+
+      <div class="zz-hero07-grid">
+        <p class="zz-hero07-tagline zz-rv zz-rv-1">关于影像 · 关于选择</p>
+        <div class="zz-hero07-body">
+          <h2 class="zz-hero07-title zz-rv zz-rv-2">
+            让每一次快门，都成为值得被记住的瞬间。
+          </h2>
+          <p class="zz-hero07-desc zz-rv zz-rv-3">
+            我相信摄影不是记录，而是选择——选择光线、角度与瞬间，把喧闹的世界裁成一张安静的画。作品偏爱克制与留白，希望每一张照片都能让观者慢下来，看见被忽略的细节。
+          </p>
+          <div class="zz-hero07-ctas zz-rv zz-rv-3">
+            <a class="zz-hero07-btn zz-hero07-btn-primary" href="business.html">人像浏览 <span class="zz-hero07-arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="zz-scroll01" id="scroll01" aria-label="滚动叙事">
+      <div class="zz-scroll01-stage">
+        <div class="zz-scroll01-media" aria-hidden="true">
+          <div class="zz-scroll01-frame">
+            <img class="zz-scroll01-img is-active" src="https://images.unsplash.com/photo-1486092642310-0c4e84309adb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Build faster">
+            <img class="zz-scroll01-img" src="https://images.unsplash.com/photo-1479707406242-e8929e87e734?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Customize easily">
+            <img class="zz-scroll01-img" src="https://images.unsplash.com/photo-1628880689946-f4a0533ac5fc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Stay consistent">
+            <img class="zz-scroll01-img" src="https://images.unsplash.com/photo-1571495653425-621ba3cb7ac1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Guide attention">
+            <img class="zz-scroll01-img" src="https://images.unsplash.com/photo-1561990306-7462bfe923b6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Scale calmly">
+          </div>
+        </div>
+        <div class="zz-scroll01-copy">
+          <article class="zz-scroll01-item is-active">
+            <h3 class="zz-scroll01-title">Build faster</h3>
+            <p class="zz-scroll01-desc">Create interfaces quickly using reusable blocks.</p>
+          </article>
+          <article class="zz-scroll01-item">
+            <h3 class="zz-scroll01-title">Customize easily</h3>
+            <p class="zz-scroll01-desc">Adapt everything to your design system.</p>
+          </article>
+          <article class="zz-scroll01-item">
+            <h3 class="zz-scroll01-title">Stay consistent</h3>
+            <p class="zz-scroll01-desc">Keep layouts balanced with a clear visual rhythm.</p>
+          </article>
+          <article class="zz-scroll01-item">
+            <h3 class="zz-scroll01-title">Guide attention</h3>
+            <p class="zz-scroll01-desc">Highlight the right content without adding noise.</p>
+          </article>
+          <article class="zz-scroll01-item">
+            <h3 class="zz-scroll01-title">Scale calmly</h3>
+            <p class="zz-scroll01-desc">Expand your pages with patterns that stay elegant.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="zz-scroll01-mobile">
+        <article class="zz-scroll01-card">
+          <img class="zz-scroll01-card-img" src="https://images.unsplash.com/photo-1486092642310-0c4e84309adb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Build faster">
+          <div class="zz-scroll01-card-body">
+            <h3 class="zz-scroll01-title">Build faster</h3>
+            <p class="zz-scroll01-desc">Create interfaces quickly using reusable blocks.</p>
+          </div>
+        </article>
+        <article class="zz-scroll01-card">
+          <img class="zz-scroll01-card-img" src="https://images.unsplash.com/photo-1479707406242-e8929e87e734?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Customize easily">
+          <div class="zz-scroll01-card-body">
+            <h3 class="zz-scroll01-title">Customize easily</h3>
+            <p class="zz-scroll01-desc">Adapt everything to your design system.</p>
+          </div>
+        </article>
+        <article class="zz-scroll01-card">
+          <img class="zz-scroll01-card-img" src="https://images.unsplash.com/photo-1628880689946-f4a0533ac5fc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Stay consistent">
+          <div class="zz-scroll01-card-body">
+            <h3 class="zz-scroll01-title">Stay consistent</h3>
+            <p class="zz-scroll01-desc">Keep layouts balanced with a clear visual rhythm.</p>
+          </div>
+        </article>
+        <article class="zz-scroll01-card">
+          <img class="zz-scroll01-card-img" src="https://images.unsplash.com/photo-1571495653425-621ba3cb7ac1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Guide attention">
+          <div class="zz-scroll01-card-body">
+            <h3 class="zz-scroll01-title">Guide attention</h3>
+            <p class="zz-scroll01-desc">Highlight the right content without adding noise.</p>
+          </div>
+        </article>
+        <article class="zz-scroll01-card">
+          <img class="zz-scroll01-card-img" src="https://images.unsplash.com/photo-1561990306-7462bfe923b6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Scale calmly">
+          <div class="zz-scroll01-card-body">
+            <h3 class="zz-scroll01-title">Scale calmly</h3>
+            <p class="zz-scroll01-desc">Expand your pages with patterns that stay elegant.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner footer-cols">
+      <div class="footer-col">
+        <p class="footer-col-title">CONTACT &amp; CHANNELS</p>
+        <p class="footer-line">小红书：<span id="footerXhs">待补充</span></p>
+        <p class="footer-line">电子邮件：<a class="footer-mail" id="footerMail" href="mailto:litera0429@gmail.com">litera0429@gmail.com</a></p>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">COOPERATION</p>
+        <p class="footer-line">商务：zjy1106711466</p>
+        <p class="footer-line">投稿：<a class="footer-mail" href="mailto:3178675298@qq.com">3178675298@qq.com</a></p>
+      </div>
+      <div class="footer-col">
+        <p class="footer-col-title">SECTIONS</p>
+        <p class="footer-line"><a href="index.html">COVER 返回封面</a></p>
+        <p class="footer-line"><a href="footprint.html">FOOTPRINT 浏览足迹</a></p>
+      </div>
+    </div>
+    <p class="footer-copy">© <span id="year">2026</span> 肘子鱼. ALL RIGHTS RESERVED.</p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" id="lbClose" type="button" aria-label="关闭">&times;</button>
+    <div class="lb-stage" id="lbStage">
+      <img class="lb-img" id="lbImg" src="" alt="" draggable="false">
+      <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="上一张">&#8249;</button>
+      <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="下一张">&#8250;</button>
+    </div>
+    <div class="lb-caption">
+      <div class="lb-title" id="lbTitle"></div>
+      <div class="lb-meta" id="lbMeta"></div>
+    </div>
+    <div class="lb-count" id="lbCount"></div>
+  </div>
+
+  <script src="js/main.js?v=22"></script>
+  <script src="js/coverflow.js?v=5"></script>
+  <script src="js/hero07.js?v=3"></script>
+  <script src="js/scroll01.js?v=1"></script>
+</body>
+</html>

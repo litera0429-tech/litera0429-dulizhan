@@ -1,0 +1,248 @@
+{
+  "heroImage": "images/home/hero.jpg",
+  "heroTitle": "肘子鱼",
+  "heroSubtitle": "用镜头收藏世界的每个瞬间",
+  "aboutPhilosophy": " 很喜欢《排球少年》里乌养一繫的一句话，“正因为没有翅膀，人们才去寻找飞翔的方法”。我会一直寻找知识、技能、品质的羽毛，去更远的地方，我想我会一直自由。\n\n",
+  "aboutExperience": "肘子鱼\n2004年，现居杭州\n摄影/胶片爱好者 \nvibe coding/视觉设计\n",
+  "aboutImage": "images/uploads/u_20260813_162404_9460.jpg",
+  "contactEmail": "litera0429@gmail.com",
+  "footerXhs": "待补充",
+  "carousel": [
+    {
+      "src": "images/uploads/u_20260818_163038_1728.jpg",
+      "alt": "华欣的海风，蓝色的海边少年",
+      "title": "Tailed",
+      "subtitle": "date：2026",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_163110_8829.jpg",
+      "alt": "涩谷之夜",
+      "title": "Tokyo",
+      "subtitle": "date：2026",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_163146_2586.jpg",
+      "alt": "亲爱的藤井树小姐 此刻我正在喜欢你",
+      "title": "北海道",
+      "subtitle": "date：2026",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟🌟🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_163218_9960.jpg",
+      "alt": "迪庆 晚安",
+      "title": "滇藏",
+      "subtitle": "date：2025",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_165031_6526.png",
+      "alt": "祁连山脉劈开戈壁和草原",
+      "title": "青甘疆",
+      "subtitle": "date：2024",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_163342_7298.jpg",
+      "alt": "From conflict to peace.",
+      "title": "大雷山",
+      "subtitle": "date：2025",
+      "meta": [
+        {
+          "label": "心动",
+          "value": "🌟🌟🌟🌟"
+        },
+        {
+          "label": "制作人",
+          "value": "肘子鱼"
+        }
+      ]
+    },
+    {
+      "src": "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/stock-images/937438c560ada1c83317f2c11b3454b0.jpg",
+      "alt": "深橙色背景下侧脸人像的动感模糊",
+      "title": "过曝",
+      "subtitle": "单曲",
+      "meta": [
+        {
+          "label": "年份",
+          "value": "2018"
+        },
+        {
+          "label": "制作人",
+          "value": "Juno Vale"
+        },
+        {
+          "label": "时长",
+          "value": "2:57"
+        }
+      ]
+    },
+    {
+      "src": "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/stock-images/821d815affa6496c39cbdeeec7a84603.jpg",
+      "alt": "黄昏城市天际线与人物肖像的双重曝光",
+      "title": "夜巡",
+      "subtitle": "全长专辑",
+      "meta": [
+        {
+          "label": "年份",
+          "value": "2021"
+        },
+        {
+          "label": "制作人",
+          "value": "Kell Mora"
+        },
+        {
+          "label": "时长",
+          "value": "4:08"
+        }
+      ]
+    },
+    {
+      "src": "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/stock-images/98f89cb9994f5c382ab964062c4039db.jpg",
+      "alt": "黄昏中手持球拍的身影，球拍化作旋涡云层",
+      "title": "慢绽",
+      "subtitle": "EP",
+      "meta": [
+        {
+          "label": "年份",
+          "value": "2022"
+        },
+        {
+          "label": "制作人",
+          "value": "Rue Alcott"
+        },
+        {
+          "label": "时长",
+          "value": "3:15"
+        }
+      ]
+    },
+    {
+      "src": "images/uploads/u_20260818_163238_4418.jpg",
+      "alt": "浅色背景上彩色烟雾的粉彩抽象",
+      "title": "内蒙",
+      "subtitle": "单曲",
+      "meta": [
+        {
+          "label": "年份",
+          "value": "2021"
+        },
+        {
+          "label": "制作人",
+          "value": "Rue Alcott"
+        },
+        {
+          "label": "时长",
+          "value": "2:19"
+        }
+      ]
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=640&h=640&fit=crop&q=70&auto=format",
+      "alt": "清冷晨光下白雪覆盖的山峰",
+      "title": "暗流",
+      "subtitle": "单曲",
+      "meta": [
+        {
+          "label": "年份",
+          "value": "2020"
+        },
+        {
+          "label": "制作人",
+          "value": "Juno Vale"
+        },
+        {
+          "label": "时长",
+          "value": "3:29"
+        }
+      ]
+    }
+  ],
+  "home": {
+    "scroll01": [
+      {
+        "image": "https://images.unsplash.com/photo-1486092642310-0c4e84309adb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "title": "Independence",
+        "description": "一个人也可以\nYou alone are enough"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1479707406242-e8929e87e734?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "title": "Fearless Innovation",
+        "description": "很多人停在0和1\nMany stop at 0 and 1, but the real journey starts from 1 to ∞."
+      },
+      {
+        "image": "images/uploads/u_20260819_112007_6401.jpg",
+        "title": "Self-improvement",
+        "description": "自强不息\n“風立ちぬ、いざ生きめやも”——纵有疾风起，人生不言弃"
+      },
+      {
+        "image": "https://images.unsplash.com/photo-1571495653425-621ba3cb7ac1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "title": "Freedom",
+        "description": "自由\nA lifetime of running toward freedom.\n穷极一生，做个自由的人"
+      },
+      {
+        "image": "images/uploads/u_20260819_112139_2285.jpg",
+        "title": "「飛べ」",
+        "description": "飞吧！\nAlways look up.\n要永远向上看"
+      }
+    ],
+    "hero07": {
+      "image": "images/uploads/u_20260819_094244_9492.jpg",
+      "tagline": "Freedom·diligence·unremitting self-improvement",
+      "title": "每一次记录，都是未来的你在回首",
+      "description": "“正因为没有翅膀，人们才去寻找飞翔的方法。” —— 乌养一繫"
+    }
+  },
+  "businessCategories": [
+    "photo",
+    "Create",
+    "video"
+  ]
+}
