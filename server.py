@@ -310,11 +310,6 @@ class SiteHandler(SimpleHTTPRequestHandler):
         f = fields.get("file")
         if not f or not f.get("data"):
             return self._json({"ok": False, "error": "没有收到文件"}, 400)
-        cat_field = fields.get("category")
-        cat = ""
-        if cat_field and isinstance(cat_field.get("data"), bytes):
-            cat = cat_field["data"].decode("utf-8", "ignore").strip()
-        slug = re.sub(r"[^a-z0-9]+", "-", cat.lower()).strip("-") if cat else ""
         data = f["data"]
         if len(data) > MAX_UPLOAD:
             return self._json({"ok": False, "error": "文件太大（上限 60MB）"}, 400)
@@ -328,9 +323,9 @@ class SiteHandler(SimpleHTTPRequestHandler):
             random.randint(1000, 9999),
             ext,
         )
-        rel = os.path.join("images", "uploads", slug, name) if slug else os.path.join("images", "uploads", name)
+        rel = os.path.join("images", "uploads", name)
         final_path = os.path.join(ROOT, rel)
-        os.makedirs(os.path.dirname(final_path), exist_ok=True)
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
         compressed = False
 
         if len(data) < COMPRESS_THRESHOLD:
