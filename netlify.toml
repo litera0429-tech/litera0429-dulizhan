@@ -9,17 +9,7 @@
   to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/images/:splat"
   status = 301
 
-[[redirects]]
-  from = "/cover.mp4"
-  to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/cover.mp4"
-  status = 301
-
 [[headers]]
   for = "/images/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/cover.mp4"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
