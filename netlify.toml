@@ -3,15 +3,15 @@
   publish = "."
 
 # 图片/视频改由 OSS/CDN 提供：前端路径保持 images/... 与 cover.mp4 不变，
-# 这里把请求重写到 CDN（__CDN_BASE__ 首次发布时由 publish.py 替换成 .env 里的 CDN_BASE）
+# 这里把请求重写到 CDN（https://litera0429.oss-cn-hangzhou.aliyuncs.com 首次发布时由 publish.py 替换成 .env 里的 CDN_BASE）
 [[redirects]]
   from = "/images/*"
-  to = "__CDN_BASE__/images/:splat"
+  to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/images/:splat"
   status = 200
 
 [[redirects]]
   from = "/cover.mp4"
-  to = "__CDN_BASE__/cover.mp4"
+  to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/cover.mp4"
   status = 200
 
 [[headers]]
