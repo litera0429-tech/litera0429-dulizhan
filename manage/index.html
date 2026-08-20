@@ -555,10 +555,11 @@
       fill.style.width = "0%";
     }
 
-    function uploadFile(file, cb) {
+    function uploadFile(file, cb, category) {
       pendingUploads += 1;
       var fd = new FormData();
       fd.append("file", file);
+      if (category) fd.append("category", category);
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/upload");
       xhr.upload.onprogress = function (e) {
@@ -597,7 +598,7 @@
       xhr.send(fd);
     }
 
-    function uploadFiles(files, cb) {
+    function uploadFiles(files, cb, category) {
       var results = [];
       var errors = [];
       var total = files.length;
@@ -622,7 +623,7 @@
           }
           setUploadProgress("已完成 " + index + " / " + total + " 张", (index / total) * 100, false);
           next();
-        });
+        }, category);
       }
       next();
     }
@@ -812,7 +813,7 @@
           renderWorks();
           scheduleAutoSave();
           setStatus(errors.length ? "已添加到「" + (cat || "未分类") + "」" + paths.length + " 张（" + errors.length + " 张失败），已自动保存" : "已添加 " + paths.length + " 张到「" + (cat || "未分类") + "」，已自动保存");
-        });
+        }, bizCat);
       });
       addBar.appendChild(addBtn);
       addBar.appendChild(addInput);
@@ -977,7 +978,7 @@
           dirty = true;
           renderWorks();
           scheduleAutoSave();
-        });
+        }, (WORKS[idx] && WORKS[idx].category) || "");
         this.value = "";
       });
       left.appendChild(thumb);

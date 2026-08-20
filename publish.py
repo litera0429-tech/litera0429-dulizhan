@@ -157,7 +157,9 @@ def optimize(src_path, ref, out_dir, dry_run):
     old_size = os.path.getsize(src_path)
     if data and len(data) < old_size:
         if not dry_run:
-            out = os.path.join(out_dir, os.path.basename(final))
+            sub = os.path.relpath(final, "images/uploads")
+            out = os.path.join(out_dir, sub)
+            os.makedirs(os.path.dirname(out), exist_ok=True)
             with open(out, "wb") as f:
                 f.write(data)
         return final, len(data), ref != final, True
@@ -245,12 +247,13 @@ def unreferenced_uploads(final_refs):
     """images/uploads 里没被 works.json / site.json 引用的图片（含转换后废弃的旧扩展名）。"""
     ref_set = set(final_refs)
     found = []
-    for f in sorted(os.listdir(UPLOAD_DIR)):
-        if not f.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
-            continue
-        p = "images/uploads/" + f
-        if p not in ref_set:
-            found.append(p)
+    for dirpath, _dirs, names in os.walk(UPLOAD_DIR):
+        for f in sorted(names):
+            if not f.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
+                continue
+            p = os.path.relpath(os.path.join(dirpath, f), ROOT).replace(os.sep, "/")
+            if p not in ref_set:
+                found.append(p)
     return found
 
 
