@@ -38,7 +38,6 @@ NETLIFY_TOML = os.path.join(ROOT, "netlify.toml")
 
 MAX_EDGE = 2400          # 长边压缩到 2400px（与后台上传压缩一致，保证观感）
 JPEG_Q = 88              # JPEG 质量
-SKIP_JPG_BYTES = 400 * 1024  # 小于 400KB 的 JPEG 不再处理
 
 
 def load_env_file(path):
@@ -131,8 +130,9 @@ def optimize(src_path, ref, out_dir, dry_run):
     except Exception:
         return ref, None, False, False
 
+    # 已经是目标分辨率以内的 JPEG：原样保留，不再二次压缩（避免反复重编码）
     is_jpg = ext in (".jpg", ".jpeg")
-    if is_jpg and os.path.getsize(src_path) < SKIP_JPG_BYTES and max(w, h) <= MAX_EDGE:
+    if is_jpg and max(w, h) <= MAX_EDGE:
         return ref, None, False, False
 
     has_alpha = im.mode in ("RGBA", "LA") or (
