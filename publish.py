@@ -16,6 +16,7 @@
 """
 
 import io
+import hashlib
 import json
 import mimetypes
 import os
@@ -206,20 +207,26 @@ def upload_to_oss(refs, state, dry_run):
         src = os.path.join(ROOT, ref)
         if not os.path.exists(src):
             continue
-        size = os.path.getsize(src)
-        if uploaded.get(ref) == size:
+        with open(src, "rb") as f:
+            digest = hashlib.md5(f.read()).hexdigest()
+        if (uploaded.get(ref) or "").lower() == digest:
             continue  # 已上传且文件没变
         if dry_run:
             continue
         bucket.put_object_from_file(ref, src, headers={"Content-Type": content_type(ref)})
-        uploaded[ref] = size
+        uploaded[ref] = digest
         count += 1
         print("[上传] %s" % ref)
     if dry_run:
+        def local_digest(p):
+            with open(p, "rb") as f:
+                return hashlib.md5(f.read()).hexdigest()
+
         pending = sum(
-            1 for ref in refs
+            1
+            for ref in refs
             if os.path.exists(os.path.join(ROOT, ref))
-            and uploaded.get(ref) != os.path.getsize(os.path.join(ROOT, ref))
+            and (uploaded.get(ref) or "").lower() != local_digest(os.path.join(ROOT, ref))
         )
         print("[预览] 待上传到 OSS：%d 张" % pending)
     else:
@@ -237,6 +244,8 @@ def media_files(refs):
         if rel_dir.startswith(uploads_dir):
             continue
         for n in names:
+            if n.startswith("cover-original"):
+                continue  # 本地归档原视频，不传 OSS
             files.add(rel_dir + "/" + n)
     if os.path.exists(os.path.join(ROOT, "cover.mp4")):
         files.add("cover.mp4")
@@ -258,7 +267,7 @@ def unreferenced_uploads(final_refs):
 
 
 def git_publish(dry_run):
-    files = ["content/site.json", "content/works.json", "netlify.toml"]
+    files = ["content/site.json", "content/works.json", "netlify.toml", "publish.py"]
     if dry_run:
         print("[预览] git 将提交：%s" % ", ".join(files))
     else:
@@ -370,7 +379,6 @@ def main():
         write_json(os.path.join(CONTENT_DIR, "works.json"), works2)
         write_json(os.path.join(CONTENT_DIR, "site.json"), site2)
         update_netlify_cdn()
-        save_state(state)
 
     changed_refs = [r for r in refs if ref_map[r] != r]
     if changed_refs:
@@ -399,6 +407,8 @@ def main():
 
     if not skip_upload:
         upload_to_oss(media_files(final_refs), state, dry_run)
+        if not dry_run:
+            save_state(state)
     git_publish(dry_run)
 
     print("完成%s" % ("（预览，未改动任何文件）" if dry_run else "。新图路径已由 Netlify 重写到 OSS/CDN"))
