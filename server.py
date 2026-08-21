@@ -18,6 +18,7 @@
 """
 
 import hmac
+import io
 import json
 import os
 import random
@@ -36,8 +37,8 @@ CONTENT_DIR = os.path.join(ROOT, "content")
 UPLOAD_DIR = os.path.join(ROOT, "images", "uploads")
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 MAX_UPLOAD = 60 * 1024 * 1024
-COMPRESS_THRESHOLD = 2 * 1024 * 1024  # 小于 2MB 不压缩
 MAX_EDGE = 2400  # 大图长边压缩到 2400px（保持原比例）
+WEBP_Q = 80       # WebP 质量
 
 
 def read_json(path):
@@ -318,73 +319,52 @@ class SiteHandler(SimpleHTTPRequestHandler):
         if ext not in ALLOWED_EXT:
             return self._json({"ok": False, "error": "仅支持 jpg / png / gif / webp 图片"}, 400)
         os.makedirs(UPLOAD_DIR, exist_ok=True)
-        name = "u_%s_%s%s" % (
+        name = "u_%s_%s" % (
             time.strftime("%Y%m%d_%H%M%S"),
             random.randint(1000, 9999),
-            ext,
         )
-        rel = os.path.join("images", "uploads", name)
-        final_path = os.path.join(ROOT, rel)
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
         compressed = False
 
-        if len(data) < COMPRESS_THRESHOLD:
-            # 小于 2MB：原样保存，不压缩
-            with open(final_path, "wb") as out:
-                out.write(data)
-        else:
-            # 大于等于 2MB：先用 sips 压到长边 2400px（保持原比例），
-            # 只有压缩后确实更小才使用压缩结果，否则保留原图
-            tmp_in = os.path.join(tempfile.gettempdir(), "zzup_" + name)
-            tmp_out = os.path.join(tempfile.gettempdir(), "zzup_out_" + name)
+        if ext in (".jpg", ".jpeg", ".png"):
+            # 等比缩放（长边 MAX_EDGE）+ 转 WebP；只有更小才用转换结果
+            tmp_in = os.path.join(tempfile.gettempdir(), "zzup_" + name + ext)
+            tmp_out = os.path.join(tempfile.gettempdir(), "zzup_out_" + name + ".webp")
             try:
                 with open(tmp_in, "wb") as out:
                     out.write(data)
-                ok = self._compress_image(tmp_in, tmp_out, ext)
+                ok = self._compress_to_webp(tmp_in, tmp_out)
                 if ok and os.path.exists(tmp_out) and os.path.getsize(tmp_out) < len(data):
-                    with open(tmp_out, "rb") as fin, open(final_path, "wb") as fout:
-                        shutil.copyfileobj(fin, fout)
+                    final_name = name + ".webp"
                     compressed = True
                 else:
-                    with open(final_path, "wb") as out:
-                        out.write(data)
+                    final_name = name + ext
+                final_path = os.path.join(UPLOAD_DIR, final_name)
+                with open(tmp_out if compressed else tmp_in, "rb") as fin, open(final_path, "wb") as fout:
+                    shutil.copyfileobj(fin, fout)
             finally:
                 for p in (tmp_in, tmp_out):
                     try:
                         os.remove(p)
                     except OSError:
                         pass
+        else:
+            # gif / webp 原样保存
+            final_name = name + ext
+            final_path = os.path.join(UPLOAD_DIR, final_name)
+            with open(final_path, "wb") as out:
+                out.write(data)
 
-        return self._json({"ok": True, "path": rel.replace(os.sep, "/"), "compressed": compressed})
+        return self._json({"ok": True, "path": "images/uploads/" + final_name, "compressed": compressed})
 
-    def _compress_image(self, src, dst, ext):
-        """用 macOS sips 压缩图片：长边 MAX_EDGE、保持原比例。"""
+    def _compress_to_webp(self, src, dst):
+        """用 PIL 等比缩放（长边 MAX_EDGE）+ 转 WebP（质量 WEBP_Q）。"""
         try:
-            if ext in (".jpg", ".jpeg"):
-                subprocess.run(
-                    [
-                        "sips", "-Z", str(MAX_EDGE),
-                        "-s", "format", "jpeg",
-                        "-s", "formatOptions", "88",
-                        src, "--out", dst,
-                    ],
-                    check=True,
-                    capture_output=True,
-                    timeout=180,
-                )
-            elif ext == ".png":
-                subprocess.run(
-                    [
-                        "sips", "-Z", str(MAX_EDGE),
-                        "-s", "format", "png",
-                        src, "--out", dst,
-                    ],
-                    check=True,
-                    capture_output=True,
-                    timeout=240,
-                )
-            else:
-                return False  # gif / webp 不做转换，原样保留
+            from PIL import Image, ImageOps
+            im = ImageOps.exif_transpose(Image.open(src))
+            if max(im.size) > MAX_EDGE:
+                im = im.copy()
+                im.thumbnail((MAX_EDGE, MAX_EDGE), Image.LANCZOS)
+            im.save(dst, "WEBP", quality=WEBP_Q, method=4)
             return os.path.exists(dst)
         except Exception:
             return False

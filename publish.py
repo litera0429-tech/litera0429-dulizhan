@@ -207,7 +207,7 @@ def absolutize_text(ref_map, dry_run):
     base = cdn_base()
     prefix = (re.escape(base) + "/") if base else ""
     pat = re.compile(
-        r'''(["'])(%s(?:images/[\w./-]+\.(?:jpg|jpeg|png|gif|webp|mp4)|cover\.mp4))(?:\?v=\d+)?(["'])''' % prefix
+        r'''(["'])((?:%s)?(?:images/[\w./-]+\.(?:jpg|jpeg|png|gif|webp|mp4)|cover\.mp4))(?:\?v=\d+)?(["'])''' % prefix
     )
     changed = []
     for name in TEXT_FILES:
@@ -324,8 +324,8 @@ def unreferenced_uploads(final_refs):
 
 def git_publish(dry_run):
     files = [
-        "content", "netlify.toml", "publish.py",
-        "index.html", "about.html", "404.html", "js", "edgeone.json",
+        "content", "netlify.toml", "publish.py", "server.py",
+        "index.html", "about.html", "404.html", "js",
     ]
     if dry_run:
         print("[预览] git 将提交：%s" % ", ".join(files))
