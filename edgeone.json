@@ -1,6 +1,43 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/manage",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/manage/*",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/api",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/api/*",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/server.py",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/publish.py",
+      "destination": "/404.html",
+      "statusCode": 302
+    },
+    {
+      "source": "/sync_cos.py",
+      "destination": "/404.html",
+      "statusCode": 302
+    }
+  ],
   "headers": [
     {
       "source": "/images/*",

@@ -9,6 +9,33 @@
   to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/images/:splat"
   status = 301
 
+# 管理后台只在本机运行（server.py），线上不存在 /api 与 /manage 接口。
+# 这里让线上 /manage、/api 及本机脚本一律返回 404，避免出现“假后台”。
+[[redirects]]
+  from = "/manage"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/manage/*"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/api"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/api/*"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/*.py"
+  to = "/404.html"
+  status = 404
+
 [[headers]]
   for = "/images/*"
   [headers.values]
