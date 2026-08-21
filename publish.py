@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""肘子鱼独立站 · 发布脚本（方案 A：本地后台 + OSS/CDN 图床 + Netlify 静态部署）
+"""肘子鱼独立站 · 发布脚本（本地后台 + OSS 图床直连 + Netlify 静态部署）
 
-做三件事：
-  1) 压缩：把 works.json / site.json 引用的图片优化到 images/uploads/
-     （长边 2400px、JPEG q88；大 PNG 转 JPEG；严格等比缩放，比例不变）
+做四件事：
+  1) 压缩：works.json / site.json 引用的图片等比缩放（长边 2400px）+ 转 WebP（q80）
   2) 上传：把压缩后的图片传到阿里云 OSS（密钥读 .env，绝不进 git）
-  3) 发布：提交 JSON 与 netlify.toml 到 git 并 push，Netlify 自动重新部署
+  3) 改写：发布前把 JSON/HTML/JS 里的图片引用统一改为 OSS 绝对地址（带版本号）
+  4) 发布：提交 JSON 与配置到 git 并 push，Netlify 自动重新部署
 
 用法：
   python3 publish.py --dry-run       只预览要做什么，不改任何文件
-  python3 publish.py                 完整发布（压缩 + 上传 OSS + git push）
-  python3 publish.py --skip-upload   只压缩 + git 提交，先不上传
+  python3 publish.py                 完整发布（压缩 + 上传 OSS + 改写引用 + git push）
+  python3 publish.py --skip-upload   只压缩 + 改写 + git 提交，先不上传
   python3 publish.py --clean-only    只删除未被网站引用的本地图片，不做其他事
+  python3 publish.py --hotlink       给 OSS 设置 Referer 防盗链白名单
 """
 
 import io
@@ -20,6 +21,7 @@ import hashlib
 import json
 import mimetypes
 import os
+import re
 import subprocess
 import sys
 import time
@@ -34,10 +36,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(ROOT, "content")
 UPLOAD_DIR = os.path.join(ROOT, "images", "uploads")
 STATE_PATH = os.path.join(ROOT, ".publish-state.json")
-NETLIFY_TOML = os.path.join(ROOT, "netlify.toml")
 
 MAX_EDGE = 2400          # 长边压缩到 2400px（与后台上传压缩一致，保证观感）
-JPEG_Q = 88              # JPEG 质量
+WEBP_Q = 80              # WebP 质量
 
 
 def load_env_file(path):
@@ -68,6 +69,10 @@ def env():
     return env._cache
 
 
+def cdn_base():
+    return (env().get("CDN_BASE") or "").strip().rstrip("/")
+
+
 def read_json(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -82,13 +87,14 @@ def write_json(path, data):
 
 
 def collect_refs(data):
-    """递归收集所有以 images/ 开头的字符串引用（不管字段名）。"""
+    """递归收集所有 images/ 引用（兼容已转成 OSS 绝对地址的值）。"""
     refs = set()
 
     def walk(o):
         if isinstance(o, str):
-            if o.startswith("images/"):
-                refs.add(o)
+            local = to_local(o)
+            if local.startswith("images/") or local == "cover.mp4":
+                refs.add(local)
         elif isinstance(o, dict):
             for v in o.values():
                 walk(v)
@@ -118,44 +124,31 @@ def content_type(ref):
 
 
 def optimize(src_path, ref, out_dir, dry_run):
-    """压缩单张图。返回 (final_ref, new_size, converted, changed)。
-    converted=True 表示扩展名变化（如 PNG→JPG）。"""
+    """等比缩放（长边 MAX_EDGE）+ 转 WebP。返回 (final_ref, new_size, converted, changed)。
+    GIF 动图不做转换；转换后反而更大的保留原图。"""
     ext = os.path.splitext(ref)[1].lower()
     base = os.path.splitext(ref)[0]
-    if ext in (".gif", ".webp") or Image is None:
+    if ext == ".gif" or Image is None:
         return ref, None, False, False
     try:
         im = ImageOps.exif_transpose(Image.open(src_path))
-        w, h = im.size
     except Exception:
         return ref, None, False, False
 
-    # 已经是目标分辨率以内的 JPEG：原样保留，不再二次压缩（避免反复重编码）
-    is_jpg = ext in (".jpg", ".jpeg")
-    if is_jpg and max(w, h) <= MAX_EDGE:
+    # 已是 WebP 且长边在目标分辨率内：原样保留，避免反复重编码
+    if ext == ".webp" and max(im.size) <= MAX_EDGE:
         return ref, None, False, False
 
-    has_alpha = im.mode in ("RGBA", "LA") or (
-        im.mode == "P" and "transparency" in im.info
-    )
-    final = ref
-    if ext == ".png" and not has_alpha:
-        final = base + ".jpg"
+    im2 = im
+    if max(im.size) > MAX_EDGE:
+        im2 = im.copy()
+        im2.thumbnail((MAX_EDGE, MAX_EDGE), Image.LANCZOS)
 
-    im2 = im if has_alpha else im.convert("RGB")
-    # thumbnail 等比缩放：长边压到 MAX_EDGE，宽高比严格不变
-    im2.thumbnail((MAX_EDGE, MAX_EDGE), Image.LANCZOS)
-
-    def render():
-        buf = io.BytesIO()
-        if final.endswith(".jpg"):
-            im2.save(buf, "JPEG", quality=JPEG_Q, optimize=True, progressive=True)
-        else:
-            im2.save(buf, "PNG", optimize=True)
-        return buf.getvalue()
-
-    data = render()
+    buf = io.BytesIO()
+    im2.save(buf, "WEBP", quality=WEBP_Q, method=4)
+    data = buf.getvalue()
     old_size = os.path.getsize(src_path)
+    final = base + ".webp"
     if data and len(data) < old_size:
         if not dry_run:
             sub = os.path.relpath(final, "images/uploads")
@@ -164,26 +157,81 @@ def optimize(src_path, ref, out_dir, dry_run):
             with open(out, "wb") as f:
                 f.write(data)
         return final, len(data), ref != final, True
-    if not dry_run and final != ref:
-        # 转 JPG 反而更大：保留原 PNG
-        return ref, None, False, False
+    # 转 WebP 反而更大：保留原图
     return ref, None, False, False
 
-def update_netlify_cdn():
-    """把 netlify.toml 里的 __CDN_BASE__ 占位符替换成 .env 配置的 CDN 域名。"""
-    if not os.path.exists(NETLIFY_TOML):
-        return False
-    cdn = (env().get("CDN_BASE") or "").strip().rstrip("/")
-    if not cdn:
-        return False
-    with open(NETLIFY_TOML, "r", encoding="utf-8") as f:
-        text = f.read()
-    if "__CDN_BASE__" not in text:
-        return False
-    new = text.replace("__CDN_BASE__", cdn)
-    with open(NETLIFY_TOML, "w", encoding="utf-8") as f:
-        f.write(new)
-    return True
+
+def to_local(ref):
+    """把 OSS 绝对地址（含版本号）还原成本地相对路径。"""
+    base = cdn_base()
+    if base and ref.startswith(base + "/"):
+        ref = ref[len(base) + 1:]
+    q = ref.find("?")
+    if q != -1:
+        ref = ref[:q]
+    return ref
+
+
+def absolutize_ref(ref):
+    """本地相对引用 -> OSS 绝对地址，带内容版本号（保证更新后缓存立即失效）。"""
+    base = cdn_base()
+    if not base:
+        return ref
+    path = os.path.join(ROOT, ref)
+    v = int(os.path.getmtime(path)) if os.path.exists(path) else 1
+    return "%s/%s?v=%d" % (base, ref, v)
+
+
+def rewrite_refs(o, ref_map):
+    if isinstance(o, dict):
+        return {k: rewrite_refs(v, ref_map) for k, v in o.items()}
+    if isinstance(o, list):
+        return [rewrite_refs(x, ref_map) for x in o]
+    if isinstance(o, str):
+        local = to_local(o)
+        if local.startswith("images/") or local == "cover.mp4":
+            final = ref_map.get(local, local)
+            return absolutize_ref(final)
+    return o
+
+
+TEXT_FILES = [
+    "index.html", "about.html", "business.html", "footprint.html",
+    "portfolio.html", "preview-coverflow.html",
+    "js/main.js", "js/coverflow.js", "js/hero07.js", "js/scroll01.js",
+]
+
+
+def absolutize_text(ref_map, dry_run):
+    """把 HTML/JS 里写死的本地图片引用统一改成 OSS 绝对地址（带版本号）。"""
+    base = cdn_base()
+    prefix = (re.escape(base) + "/") if base else ""
+    pat = re.compile(
+        r'''(["'])(%s(?:images/[\w./-]+\.(?:jpg|jpeg|png|gif|webp|mp4)|cover\.mp4))(?:\?v=\d+)?(["'])''' % prefix
+    )
+    changed = []
+    for name in TEXT_FILES:
+        path = os.path.join(ROOT, name)
+        if not os.path.exists(path):
+            continue
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        def repl(m):
+            ref = to_local(m.group(2))
+            final = ref_map.get(ref, ref)
+            return m.group(1) + absolutize_ref(final) + m.group(3)
+
+        new = pat.sub(repl, text)
+        if new != text:
+            changed.append(name)
+            if not dry_run:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(new)
+    if changed:
+        print("[引用] %d 个页面/脚本已改为 OSS 直连地址（带版本号）：%s" % (
+            len(changed), ", ".join(changed)))
+    return changed
 
 
 def upload_to_oss(refs, state, dry_run):
@@ -275,11 +323,14 @@ def unreferenced_uploads(final_refs):
 
 
 def git_publish(dry_run):
-    files = ["content/site.json", "content/works.json", "netlify.toml", "publish.py"]
+    files = [
+        "content", "netlify.toml", "publish.py",
+        "index.html", "about.html", "404.html", "js", "edgeone.json",
+    ]
     if dry_run:
         print("[预览] git 将提交：%s" % ", ".join(files))
     else:
-        subprocess.run(["git", "add", "--"] + files, cwd=ROOT, check=False)
+        subprocess.run(["git", "add", "-A", "--"] + files, cwd=ROOT, check=False)
         diff = subprocess.run(
             ["git", "diff", "--cached", "--quiet"],
             cwd=ROOT,
@@ -333,14 +384,48 @@ def set_cache_headers():
     print("[缓存] 完成，共 %d 个对象已补上长缓存头" % count)
 
 
+def set_hotlink():
+    """给 OSS 设置 Referer 防盗链：只允许本站与本地预览访问，允许空 Referer。"""
+    try:
+        import oss2
+        from oss2.models import BucketReferer
+    except ImportError:
+        print("缺少 oss2，请先：pip3 install oss2")
+        return
+    env_ = env()
+    ak = env_.get("OSS_ACCESS_KEY_ID", "").strip()
+    sk = env_.get("OSS_ACCESS_KEY_SECRET", "").strip()
+    bucket_name = env_.get("OSS_BUCKET", "").strip()
+    endpoint = env_.get("OSS_ENDPOINT", "").strip()
+    if not (ak and sk and bucket_name and endpoint):
+        print("未配置 OSS 密钥（.env）")
+        return
+    bucket = oss2.Bucket(oss2.Auth(ak, sk), endpoint, bucket_name)
+    referers = [
+        "https://zjy0429.netlify.app*",
+        "http://localhost:8000*",
+        "http://127.0.0.1:8000*",
+        "http://localhost:8001*",
+        "http://127.0.0.1:8001*",
+    ]
+    bucket.put_bucket_referer(
+        BucketReferer(True, referers, allow_truncate_query_string=True)
+    )
+    print("[防盗链] 已设置：允许空 Referer + 白名单 %s" % "; ".join(referers))
+
+
 def main():
     dry_run = "--dry-run" in sys.argv
     skip_upload = "--skip-upload" in sys.argv
     clean_only = "--clean-only" in sys.argv
     set_cache = "--cache" in sys.argv
+    hotlink = "--hotlink" in sys.argv
 
     if set_cache:
         set_cache_headers()
+        return
+    if hotlink:
+        set_hotlink()
         return
 
     works = read_json(os.path.join(CONTENT_DIR, "works.json"))
@@ -410,26 +495,15 @@ def main():
     else:
         print("[压缩] 没有需要压缩的图片")
 
-    # 更新 JSON 里的扩展名变化
-    def rewrite(o):
-        if isinstance(o, dict):
-            return {k: rewrite(v) for k, v in o.items()}
-        if isinstance(o, list):
-            return [rewrite(x) for x in o]
-        if isinstance(o, str) and o in ref_map and ref_map[o] != o:
-            return ref_map[o]
-        return o
-
+    # 更新 JSON：相对路径 -> OSS 绝对地址（带版本号）；WebP 扩展名变化一并处理
     if not dry_run:
-        works2 = rewrite(works)
-        site2 = rewrite(site)
-        write_json(os.path.join(CONTENT_DIR, "works.json"), works2)
-        write_json(os.path.join(CONTENT_DIR, "site.json"), site2)
-        update_netlify_cdn()
+        write_json(os.path.join(CONTENT_DIR, "works.json"), rewrite_refs(works, ref_map))
+        write_json(os.path.join(CONTENT_DIR, "site.json"), rewrite_refs(site, ref_map))
+        absolutize_text(ref_map, dry_run)
 
     changed_refs = [r for r in refs if ref_map[r] != r]
     if changed_refs:
-        print("[JSON] 扩展名变更 %d 处，已同步更新 works.json / site.json" % len(changed_refs))
+        print("[JSON] 有 %d 处引用已转 WebP/改地址，works.json / site.json 已同步" % len(changed_refs))
 
     final_refs = [ref_map[r] for r in refs]
 
@@ -458,7 +532,7 @@ def main():
             save_state(state)
     git_publish(dry_run)
 
-    print("完成%s" % ("（预览，未改动任何文件）" if dry_run else "。新图路径已由 Netlify 重写到 OSS/CDN"))
+    print("完成%s" % ("（预览，未改动任何文件）" if dry_run else "。图片已改为 OSS 直连地址（带版本号，1 年缓存不影响更新）"))
 
 
 if __name__ == "__main__":

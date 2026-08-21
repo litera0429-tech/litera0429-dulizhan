@@ -4,145 +4,67 @@
   /* Coverflow 封面轮播 — 由 React CoverflowCarousel 原样移植为原生 JS。
      图片与文案对应原演示组件；数据来源：content/site.json 的 carousel 数组。 */
 
-  var R2 = "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/stock-images";
-  var UNSPLASH = function (id) {
-    return (
-      "https://images.unsplash.com/photo-" + id +
-      "?w=640&h=640&fit=crop&q=70&auto=format"
-    );
-  };
-
+  /* 兜底数据：只用站内已有作品图（本地相对路径，发布时自动转 OSS 直连）。
+     正常情况由 content/site.json 的 carousel 数组驱动。 */
   var DEFAULT_CAROUSEL = [
     {
-      src: R2 + "/767d99bb371a54d0d36751e8cecae43c.jpg",
-      alt: "夕阳海景中潜水者的剪影，形似一幅侧脸人像",
-      title: "潮汐",
-      subtitle: "全长专辑",
+      src: "images/uploads/u_20260818_163038_1728.jpg",
+      alt: "华欣的海风，蓝色的海边少年",
+      title: "Tailed",
+      subtitle: "date：2026",
       meta: [
-        { label: "年份", value: "2019" },
-        { label: "制作人", value: "Ada Ferrow" },
-        { label: "时长", value: "3:42" }
+        { label: "心动", value: "🌟🌟🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     },
     {
-      src: R2 + "/821d815affa6496c39cbdeeec7a84603.jpg",
-      alt: "黄昏城市天际线与人物肖像的双重曝光",
-      title: "夜巡",
-      subtitle: "全长专辑",
+      src: "images/uploads/u_20260818_163110_8829.jpg",
+      alt: "涩谷之夜",
+      title: "Tokyo",
+      subtitle: "date：2026",
       meta: [
-        { label: "年份", value: "2021" },
-        { label: "制作人", value: "Kell Mora" },
-        { label: "时长", value: "4:08" }
+        { label: "心动", value: "🌟🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     },
     {
-      src: R2 + "/937438c560ada1c83317f2c11b3454b0.jpg",
-      alt: "深橙色背景下侧脸人像的动感模糊",
-      title: "过曝",
-      subtitle: "单曲",
+      src: "images/uploads/u_20260818_163146_2586.jpg",
+      alt: "亲爱的藤井树小姐 此刻我正在喜欢你",
+      title: "北海道",
+      subtitle: "date：2026",
       meta: [
-        { label: "年份", value: "2018" },
-        { label: "制作人", value: "Juno Vale" },
-        { label: "时长", value: "2:57" }
+        { label: "心动", value: "🌟🌟🌟🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     },
     {
-      src: R2 + "/98f89cb9994f5c382ab964062c4039db.jpg",
-      alt: "黄昏中手持球拍的身影，球拍化作旋涡云层",
-      title: "慢绽",
-      subtitle: "EP",
+      src: "images/uploads/u_20260818_163218_9960.jpg",
+      alt: "迪庆 晚安",
+      title: "滇藏",
+      subtitle: "date：2025",
       meta: [
-        { label: "年份", value: "2022" },
-        { label: "制作人", value: "Rue Alcott" },
-        { label: "时长", value: "3:15" }
+        { label: "心动", value: "🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     },
     {
-      src: R2 + "/ddcbee38be8b7274e19e132d7ab35b53.jpg",
-      alt: "手指间的剪影，一只飞鸟穿过指缝",
-      title: "摊掌",
-      subtitle: "单曲",
+      src: "images/uploads/u_20260818_165031_6526.png",
+      alt: "祁连山脉劈开戈壁和草原",
+      title: "青甘疆",
+      subtitle: "date：2024",
       meta: [
-        { label: "年份", value: "2020" },
-        { label: "制作人", value: "Ada Ferrow" },
-        { label: "时长", value: "3:01" }
+        { label: "心动", value: "🌟🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     },
     {
-      src: UNSPLASH("1470071459604-3b5ec3a7fe05"),
-      alt: "晨光中雾气漫过森林山谷",
-      title: "低地",
-      subtitle: "全长专辑",
+      src: "images/uploads/u_20260818_163342_7298.jpg",
+      alt: "From conflict to peace.",
+      title: "大雷山",
+      subtitle: "date：2025",
       meta: [
-        { label: "年份", value: "2017" },
-        { label: "制作人", value: "Sim Oyo" },
-        { label: "时长", value: "5:20" }
-      ]
-    },
-    {
-      src: UNSPLASH("1500534314209-a25ddb2bd429"),
-      alt: "湛蓝天空下阳光照耀的沙丘山脊",
-      title: "旱季",
-      subtitle: "EP",
-      meta: [
-        { label: "年份", value: "2016" },
-        { label: "制作人", value: "Juno Vale" },
-        { label: "时长", value: "2:44" }
-      ]
-    },
-    {
-      src: UNSPLASH("1441974231531-c6227db76b6e"),
-      alt: "阳光穿过茂密树林",
-      title: "林下",
-      subtitle: "单曲",
-      meta: [
-        { label: "年份", value: "2023" },
-        { label: "制作人", value: "Kell Mora" },
-        { label: "时长", value: "3:38" }
-      ]
-    },
-    {
-      src: UNSPLASH("1493246507139-91e8fad9978e"),
-      alt: "浅色背景上彩色烟雾的粉彩抽象",
-      title: "纸灯笼",
-      subtitle: "单曲",
-      meta: [
-        { label: "年份", value: "2021" },
-        { label: "制作人", value: "Rue Alcott" },
-        { label: "时长", value: "2:19" }
-      ]
-    },
-    {
-      src: UNSPLASH("1501785888041-af3ef285b470"),
-      alt: "暮色中山脊倒映在湖面",
-      title: "静水",
-      subtitle: "全长专辑",
-      meta: [
-        { label: "年份", value: "2015" },
-        { label: "制作人", value: "Ada Ferrow" },
-        { label: "时长", value: "4:51" }
-      ]
-    },
-    {
-      src: UNSPLASH("1465101162946-4377e57745c3"),
-      alt: "暗色风景上长曝光留下的光轨",
-      title: "第三轨",
-      subtitle: "EP",
-      meta: [
-        { label: "年份", value: "2024" },
-        { label: "制作人", value: "Sim Oyo" },
-        { label: "时长", value: "3:07" }
-      ]
-    },
-    {
-      src: UNSPLASH("1519681393784-d120267933ba"),
-      alt: "清冷晨光下白雪覆盖的山峰",
-      title: "暗流",
-      subtitle: "单曲",
-      meta: [
-        { label: "年份", value: "2020" },
-        { label: "制作人", value: "Juno Vale" },
-        { label: "时长", value: "3:29" }
+        { label: "心动", value: "🌟🌟🌟🌟" },
+        { label: "制作人", value: "肘子鱼" }
       ]
     }
   ];

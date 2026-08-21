@@ -2,13 +2,6 @@
 [build]
   publish = "."
 
-# 图片/视频改由 OSS 提供：前端路径保持 images/... 与 cover.mp4 不变，
-# 这里 301 直连跳转到 OSS，浏览器直接访问阿里云，不再经 Netlify 中转
-[[redirects]]
-  from = "/images/*"
-  to = "https://litera0429.oss-cn-hangzhou.aliyuncs.com/images/:splat"
-  status = 301
-
 # 管理后台只在本机运行（server.py），线上不存在 /api 与 /manage 接口。
 # 这里让线上 /manage、/api 及本机脚本一律返回 404，避免出现“假后台”。
 [[redirects]]
@@ -35,8 +28,3 @@
   from = "/*.py"
   to = "/404.html"
   status = 404
-
-[[headers]]
-  for = "/images/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
